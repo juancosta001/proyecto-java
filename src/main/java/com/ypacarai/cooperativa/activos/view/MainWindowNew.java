@@ -55,6 +55,7 @@ import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.ActivoService;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
 import com.ypacarai.cooperativa.activos.service.MantenimientoPreventivoService;
+import com.ypacarai.cooperativa.activos.util.ControlAccesoRoles;
 
 
 /**
@@ -260,7 +261,24 @@ public class MainWindowNew extends JFrame {
         lblMenu.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.add(lblMenu);
         
-        // Botones de navegación
+        // Información del usuario actual
+        if (usuarioActual != null) {
+            JLabel lblUsuario = new JLabel("👤 " + usuarioActual.getUsuNombre());
+            lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            lblUsuario.setForeground(COLOR_VERDE_COOPERATIVA);
+            lblUsuario.setBorder(new EmptyBorder(5, 15, 5, 15));
+            lblUsuario.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(lblUsuario);
+            
+            JLabel lblRol = new JLabel("🔐 " + usuarioActual.getUsuRol());
+            lblRol.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+            lblRol.setForeground(COLOR_GRIS_TEXTO);
+            lblRol.setBorder(new EmptyBorder(0, 15, 10, 15));
+            lblRol.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(lblRol);
+        }
+        
+        // Botones de navegación - Solo mostrar los permitidos
         String[][] menuItems = {
             {"📊", "Dashboard", "dashboard"},
             {"💻", "Gestión de Activos", "activos"},
@@ -272,8 +290,17 @@ public class MainWindowNew extends JFrame {
         };
         
         for (String[] item : menuItems) {
-            JButton btnMenu = createMenuButton(item[0] + " " + item[1], item[2]);
-            panel.add(btnMenu);
+            String modulo = item[2];
+            
+            // Verificar permisos antes de mostrar el botón
+            if (ControlAccesoRoles.puedeAccederModulo(usuarioActual, modulo)) {
+                JButton btnMenu = createMenuButton(item[0] + " " + item[1], modulo);
+                panel.add(btnMenu);
+            } else {
+                // Opcional: Agregar botón deshabilitado con tooltip explicativo
+                JButton btnDeshabilitado = createMenuButtonDisabled(item[0] + " " + item[1], modulo);
+                panel.add(btnDeshabilitado);
+            }
         }
         
         panel.add(Box.createVerticalGlue());
@@ -336,6 +363,44 @@ public class MainWindowNew extends JFrame {
             selectMenuItem(button, action);
             showPanel(action);
         });
+        
+        return button;
+    }
+    
+    private JButton createMenuButtonDisabled(String text, String modulo) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Fondo gris para botón deshabilitado
+                g2d.setColor(COLOR_GRIS_CLARO);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+                
+                // Texto gris
+                g2d.setColor(Color.LIGHT_GRAY);
+                g2d.setFont(getFont());
+                FontMetrics fm = g2d.getFontMetrics();
+                int textX = 15;
+                int textY = (getHeight() + fm.getAscent()) / 2 - 2;
+                g2d.drawString(getText(), textX, textY);
+            }
+        };
+        
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setPreferredSize(new Dimension(220, 40));
+        button.setMaximumSize(new Dimension(220, 40));
+        button.setEnabled(false);
+        
+        // Tooltip explicativo
+        String mensaje = ControlAccesoRoles.mensajeAccesoDenegado(usuarioActual, "acceder al módulo " + modulo);
+        button.setToolTipText("<html><div style='width: 200px;'>" + mensaje.replace("\n", "<br>") + "</div></html>");
         
         return button;
     }
@@ -939,6 +1004,17 @@ public class MainWindowNew extends JFrame {
         
         // Action Listeners
         btnCrearUsuario.addActionListener(e -> {
+            // Verificar permisos antes de abrir la ventana
+            if (!ControlAccesoRoles.tienePermiso(usuarioActual, ControlAccesoRoles.Permiso.CREAR_USUARIOS)) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    ControlAccesoRoles.mensajeAccesoDenegado(usuarioActual, "crear usuarios"),
+                    "Acceso Denegado",
+                    JOptionPane.WARNING_MESSAGE
+                );
+                return;
+            }
+            
             // Abrir ventana de creación de usuario
             CrearUsuarioWindow crearUsuarioWindow = new CrearUsuarioWindow(this, usuarioActual);
             crearUsuarioWindow.setVisible(true);

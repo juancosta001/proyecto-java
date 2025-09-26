@@ -466,9 +466,14 @@ public class CrearUsuarioWindow extends JFrame {
     }
     
     private void guardarUsuario() {
+        System.out.println("DEBUG: Iniciando guardarUsuario()");
+        
         if (!validarFormulario()) {
+            System.out.println("DEBUG: Validación de formulario falló");
             return;
         }
+        
+        System.out.println("DEBUG: Formulario válido, procediendo a guardar");
         
         // Deshabilitar botón para evitar dobles clics
         btnGuardar.setEnabled(false);
@@ -483,6 +488,13 @@ public class CrearUsuarioWindow extends JFrame {
                 String email = txtEmail.getText().trim();
                 Usuario.Rol rol = (Usuario.Rol) cmbRol.getSelectedItem();
                 
+                System.out.println("DEBUG: Datos a guardar:");
+                System.out.println("  - Nombre: " + nombre);
+                System.out.println("  - Usuario: " + usuario);
+                System.out.println("  - Email: " + email);
+                System.out.println("  - Rol: " + rol);
+                System.out.println("  - Usuario actual ID: " + usuarioActual.getUsuId());
+                
                 var resultado = gestionUsuariosService.crearUsuario(
                     nombre,
                     usuario,
@@ -491,6 +503,13 @@ public class CrearUsuarioWindow extends JFrame {
                     rol,
                     usuarioActual.getUsuId()
                 );
+                
+                System.out.println("DEBUG: Resultado del servicio:");
+                System.out.println("  - Exitoso: " + resultado.isExitoso());
+                System.out.println("  - Mensaje: " + resultado.getMensaje());
+                if (resultado.getId() != null) {
+                    System.out.println("  - ID: " + resultado.getId());
+                }
                 
                 if (resultado.isExitoso()) {
                     mostrarExito("✅ Usuario creado exitosamente!");
@@ -520,6 +539,8 @@ public class CrearUsuarioWindow extends JFrame {
                 }
                 
             } catch (Exception ex) {
+                System.out.println("DEBUG: Excepción capturada: " + ex.getMessage());
+                ex.printStackTrace();
                 mostrarError("❌ Error inesperado: " + ex.getMessage());
             } finally {
                 btnGuardar.setEnabled(true);

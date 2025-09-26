@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,6 +41,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -98,6 +100,7 @@ public class SistemaTicketsPanel extends JPanel {
     
     // Botones de acción
     private JButton btnNuevoTicket;
+    private JButton btnCrearPorUbicacion;
     private JButton btnVerDetalles;
     private JButton btnAsignar;
     private JButton btnCambiarEstado;
@@ -406,6 +409,7 @@ public class SistemaTicketsPanel extends JPanel {
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
         btnNuevoTicket = crearBoton("➕ Nuevo Ticket", VERDE_PRINCIPAL, e -> nuevoTicket());
+        btnCrearPorUbicacion = crearBoton("🏢 Crear por Ubicación", new Color(34, 139, 34), e -> crearTicketsPorUbicacion());
         btnVerDetalles = crearBoton("👁️ Ver Detalles", AZUL_INFO, e -> verDetallesTicket());
         btnAsignar = crearBoton("👤 Asignar/Reasignar", PURPLE_INFO, e -> asignarTicket());
         btnCambiarEstado = crearBoton("🔄 Cambiar Estado", NARANJA_WARNING, e -> cambiarEstadoTicket());
@@ -413,6 +417,7 @@ public class SistemaTicketsPanel extends JPanel {
         btnGenerarAutomaticos = crearBoton("⚙️ Generar Automáticos", GRIS_OSCURO, e -> generarTicketsAutomaticos());
         
         panel.add(btnNuevoTicket);
+        panel.add(btnCrearPorUbicacion);
         panel.add(btnVerDetalles);
         panel.add(btnAsignar);
         panel.add(btnCambiarEstado);
@@ -1000,6 +1005,24 @@ public class SistemaTicketsPanel extends JPanel {
         
         // Enfocar el primer campo
         cmbActivo.requestFocus();
+    }
+    
+    private void crearTicketsPorUbicacion() {
+        try {
+            CrearTicketMejoradoWindow ventana = new CrearTicketMejoradoWindow(
+                (JFrame) SwingUtilities.getWindowAncestor(this), 
+                usuarioActual
+            );
+            ventana.setVisible(true);
+            
+            // Actualizar tabla después de crear tickets
+            actualizarTabla();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error al abrir la ventana de creación de tickets por ubicación: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void limpiarFormulario() {
