@@ -94,276 +94,280 @@ public class CrearTicketMejoradoWindow extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 GradientPaint gradient = new GradientPaint(
-                    0, 0, COLOR_VERDE_CLARO.brighter(),
-                    0, getHeight(), COLOR_BLANCO
+                    0, 0, COLOR_BLANCO,
+                    0, getHeight(), new Color(240, 248, 255)
                 );
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
             }
         };
         panelPrincipal.setLayout(new BorderLayout());
+        panelPrincipal.setBorder(new EmptyBorder(20, 20, 20, 20));
         
-        // Header
-        JPanel headerPanel = createHeaderPanel();
-        panelPrincipal.add(headerPanel, BorderLayout.NORTH);
+        // Panel del título
+        JPanel panelTitulo = createTitlePanel();
+        panelPrincipal.add(panelTitulo, BorderLayout.NORTH);
         
-        // Contenido principal
-        JPanel mainPanel = createMainPanel();
-        panelPrincipal.add(mainPanel, BorderLayout.CENTER);
+        // Panel del formulario
+        JPanel panelFormulario = createFormPanel();
+        panelPrincipal.add(panelFormulario, BorderLayout.CENTER);
         
-        // Botones
-        JPanel buttonPanel = createButtonPanel();
-        panelPrincipal.add(buttonPanel, BorderLayout.SOUTH);
+        // Panel de botones
+        JPanel panelBotones = createButtonPanel();
+        panelPrincipal.add(panelBotones, BorderLayout.SOUTH);
         
         add(panelPrincipal);
     }
     
-    private JPanel createHeaderPanel() {
-        JPanel panel = new JPanel();
+    private JPanel createTitlePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(20, 20, 10, 20));
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         
         JLabel lblTitulo = new JLabel("🎫 Crear Tickets por Ubicación");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(COLOR_VERDE_COOPERATIVA);
-        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JLabel lblSubtitulo = new JLabel("Seleccione una ubicación para ver todos los equipos disponibles");
-        lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JLabel lblSubtitulo = new JLabel("Selecciona la ubicación y los equipos para crear tickets de mantenimiento");
+        lblSubtitulo.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         lblSubtitulo.setForeground(COLOR_GRIS_TEXTO);
-        lblSubtitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblSubtitulo.setHorizontalAlignment(SwingConstants.CENTER);
         
-        panel.add(lblTitulo);
-        panel.add(Box.createVerticalStrut(5));
-        panel.add(lblSubtitulo);
+        panel.add(lblTitulo, BorderLayout.NORTH);
+        panel.add(lblSubtitulo, BorderLayout.SOUTH);
+        
+        panel.setBorder(new EmptyBorder(0, 0, 20, 0));
         
         return panel;
     }
     
-    private JPanel createMainPanel() {
+    private JPanel createFormPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(10, 20, 10, 20));
         
-        // Panel izquierdo - Configuración del ticket
-        JPanel leftPanel = createConfigurationPanel();
+        // Panel superior - Datos del ticket
+        JPanel panelDatos = createDataPanel();
+        panel.add(panelDatos, BorderLayout.NORTH);
         
-        // Panel derecho - Selección de equipos
-        JPanel rightPanel = createEquipmentSelectionPanel();
-        
-        panel.add(leftPanel, BorderLayout.WEST);
-        panel.add(rightPanel, BorderLayout.CENTER);
+        // Panel central - Selección de equipos
+        JPanel panelEquipos = createEquipmentPanel();
+        panel.add(panelEquipos, BorderLayout.CENTER);
         
         return panel;
     }
     
-    private JPanel createConfigurationPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 2),
-            "⚙️ Configuración del Ticket",
-            TitledBorder.LEFT,
-            TitledBorder.TOP,
-            new Font("Segoe UI", Font.BOLD, 14),
-            COLOR_VERDE_COOPERATIVA));
-        panel.setBackground(COLOR_BLANCO);
-        panel.setPreferredSize(new Dimension(350, 0));
+    private JPanel createDataPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 2),
+                " Datos del Ticket ",
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12),
+                COLOR_VERDE_COOPERATIVA
+            ),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        panel.setOpaque(false);
+        
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
         
         // Ubicación
-        panel.add(createFieldPanel("🏢 Ubicación:", cmbUbicacion = new JComboBox<>()));
-        panel.add(Box.createVerticalStrut(10));
+        gbc.gridx = 0; gbc.gridy = 0;
+        panel.add(new JLabel("🏢 Ubicación:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        panel.add(cmbUbicacion = new JComboBox<>(), gbc);
         
         // Tipo
-        panel.add(createFieldPanel("📋 Tipo:", cmbTipo = new JComboBox<>(Ticket.Tipo.values())));
-        panel.add(Box.createVerticalStrut(10));
+        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panel.add(new JLabel("🔧 Tipo:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        panel.add(cmbTipo = new JComboBox<>(Ticket.Tipo.values()), gbc);
         
         // Prioridad
-        panel.add(createFieldPanel("⚡ Prioridad:", cmbPrioridad = new JComboBox<>(Ticket.Prioridad.values())));
+        gbc.gridx = 0; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panel.add(new JLabel("⚡ Prioridad:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        panel.add(cmbPrioridad = new JComboBox<>(Ticket.Prioridad.values()), gbc);
         cmbPrioridad.setSelectedItem(Ticket.Prioridad.Media);
-        panel.add(Box.createVerticalStrut(10));
         
-        // Técnico asignado
-        panel.add(createFieldPanel("👨‍💻 Técnico Asignado:", cmbTecnicoAsignado = new JComboBox<>()));
-        panel.add(Box.createVerticalStrut(10));
+        // Técnico
+        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panel.add(new JLabel("👨‍💻 Técnico:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        panel.add(cmbTecnicoAsignado = new JComboBox<>(), gbc);
         
         // Título
-        panel.add(createFieldPanel("📝 Título:", txtTitulo = new JTextField()));
-        panel.add(Box.createVerticalStrut(10));
+        gbc.gridx = 0; gbc.gridy = 4; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        panel.add(new JLabel("📝 Título:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        panel.add(txtTitulo = new JTextField(), gbc);
         
         // Descripción
-        JLabel lblDescripcion = new JLabel("📄 Descripción:");
-        lblDescripcion.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblDescripcion.setForeground(COLOR_GRIS_TEXTO);
-        panel.add(lblDescripcion);
-        panel.add(Box.createVerticalStrut(5));
-        
-        txtDescripcion = new JTextArea(4, 20);
-        txtDescripcion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        txtDescripcion.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 1),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+        gbc.gridx = 0; gbc.gridy = 5; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0; gbc.anchor = GridBagConstraints.NORTHWEST;
+        panel.add(new JLabel("📋 Descripción:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.BOTH; gbc.weightx = 1.0; gbc.weighty = 1.0;
+        txtDescripcion = new JTextArea(3, 30);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
-        
-        JScrollPane scrollDescripcion = new JScrollPane(txtDescripcion);
-        scrollDescripcion.setPreferredSize(new Dimension(320, 100));
-        panel.add(scrollDescripcion);
-        
-        // Status
-        lblStatus = new JLabel(" ");
-        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        panel.add(Box.createVerticalStrut(10));
-        panel.add(lblStatus);
+        txtDescripcion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(new JScrollPane(txtDescripcion), gbc);
         
         return panel;
     }
     
-    private JPanel createEquipmentSelectionPanel() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(COLOR_AZUL, 2),
-            "💻 Equipos Disponibles",
-            TitledBorder.LEFT,
-            TitledBorder.TOP,
-            new Font("Segoe UI", Font.BOLD, 14),
-            COLOR_AZUL));
-        panel.setBackground(COLOR_BLANCO);
+    private JPanel createEquipmentPanel() {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 2),
+                " Selección de Equipos ",
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                new Font("Segoe UI", Font.BOLD, 12),
+                COLOR_VERDE_COOPERATIVA
+            ),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        panel.setOpaque(false);
         
-        // Panel superior con checkbox para seleccionar todos
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setOpaque(false);
-        
-        chkSeleccionarTodos = new JCheckBox("✅ Seleccionar todos los equipos");
+        // Panel superior con checkbox "Seleccionar todos"
+        JPanel panelSuperior = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panelSuperior.setOpaque(false);
+        chkSeleccionarTodos = new JCheckBox("Seleccionar todos los equipos");
         chkSeleccionarTodos.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        chkSeleccionarTodos.setForeground(COLOR_AZUL);
         chkSeleccionarTodos.setOpaque(false);
-        topPanel.add(chkSeleccionarTodos, BorderLayout.WEST);
+        panelSuperior.add(chkSeleccionarTodos);
         
         lblCantidadSeleccionados = new JLabel("0 equipos seleccionados");
-        lblCantidadSeleccionados.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblCantidadSeleccionados.setForeground(COLOR_GRIS_TEXTO);
-        topPanel.add(lblCantidadSeleccionados, BorderLayout.EAST);
+        lblCantidadSeleccionados.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        lblCantidadSeleccionados.setForeground(COLOR_AZUL);
+        panelSuperior.add(lblCantidadSeleccionados);
         
-        panel.add(topPanel, BorderLayout.NORTH);
+        panel.add(panelSuperior, BorderLayout.NORTH);
         
-        // Lista de equipos
+        // Lista de activos
         modeloListaActivos = new DefaultListModel<>();
         listaActivos = new JList<>(modeloListaActivos);
         listaActivos.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         listaActivos.setCellRenderer(new ActivoCellRenderer());
         
         JScrollPane scrollLista = new JScrollPane(listaActivos);
-        scrollLista.setPreferredSize(new Dimension(0, 400));
+        scrollLista.setPreferredSize(new Dimension(400, 200));
         panel.add(scrollLista, BorderLayout.CENTER);
         
         return panel;
     }
     
-    private JPanel createFieldPanel(String labelText, JComponent field) {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setOpaque(false);
-        
-        JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        label.setForeground(COLOR_GRIS_TEXTO);
-        
-        if (field instanceof JTextField) {
-            field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            ((JTextField) field).setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 1),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
-        } else if (field instanceof JComboBox) {
-            field.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-            ((JComboBox<?>) field).setBorder(BorderFactory.createLineBorder(COLOR_VERDE_COOPERATIVA, 1));
-        }
-        
-        panel.add(label, BorderLayout.NORTH);
-        panel.add(field, BorderLayout.CENTER);
-        
-        return panel;
-    }
-    
     private JPanel createButtonPanel() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 20));
+        JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
+        panel.setBorder(new EmptyBorder(20, 0, 0, 0));
         
-        btnGuardar = createStyledButton("💾 Crear Tickets", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO, true);
-        btnCancelar = createStyledButton("❌ Cancelar", COLOR_ROJO, COLOR_BLANCO, false);
+        // Status label
+        lblStatus = new JLabel(" ");
+        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        panel.add(lblStatus, BorderLayout.WEST);
         
-        panel.add(btnGuardar);
-        panel.add(btnCancelar);
+        // Botones
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        panelBotones.setOpaque(false);
+        
+        btnCancelar = createStyledButton("❌ Cancelar", COLOR_ROJO, COLOR_BLANCO, true);
+        btnGuardar = createStyledButton("💾 Crear Tickets", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO, false);
+        
+        panelBotones.add(btnCancelar);
+        panelBotones.add(btnGuardar);
+        
+        panel.add(panelBotones, BorderLayout.EAST);
         
         return panel;
     }
     
-    private JButton createStyledButton(String text, Color bgColor, Color textColor, boolean isPrimary) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                
-                Color backgroundColor = bgColor;
-                if (getModel().isPressed()) {
-                    backgroundColor = backgroundColor.darker();
-                } else if (getModel().isRollover()) {
-                    backgroundColor = backgroundColor.brighter();
-                }
-                
-                g2d.setColor(backgroundColor);
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                
-                g2d.setColor(textColor);
-                g2d.setFont(getFont());
-                FontMetrics fm = g2d.getFontMetrics();
-                int textX = (getWidth() - fm.stringWidth(getText())) / 2;
-                int textY = (getHeight() + fm.getAscent()) / 2 - 2;
-                g2d.drawString(getText(), textX, textY);
-            }
-        };
-        
-        button.setOpaque(false);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
+    private JButton createStyledButton(String text, Color bgColor, Color fgColor, boolean enabled) {
+        JButton button = new JButton(text);
+        button.setBackground(bgColor);
+        button.setForeground(fgColor);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        button.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createRaisedBevelBorder(),
+            BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        button.setEnabled(enabled);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", isPrimary ? Font.BOLD : Font.PLAIN, 12));
-        button.setPreferredSize(new Dimension(140, 40));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        
+        // Hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(bgColor.brighter());
+                }
+            }
+            
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                if (button.isEnabled()) {
+                    button.setBackground(bgColor);
+                }
+            }
+        });
         
         return button;
     }
     
     private void setupEventListeners() {
-        // Cambio de ubicación
+        // Evento para cambio de ubicación
         cmbUbicacion.addActionListener(e -> cargarEquiposPorUbicacion());
         
-        // Seleccionar todos
-        chkSeleccionarTodos.addActionListener(e -> seleccionarTodosEquipos());
-        
-        // Cambio en selección de equipos
-        listaActivos.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                actualizarContadorSeleccionados();
+        // Evento para seleccionar todos
+        chkSeleccionarTodos.addActionListener(e -> {
+            if (chkSeleccionarTodos.isSelected()) {
+                listaActivos.setSelectionInterval(0, modeloListaActivos.getSize() - 1);
+            } else {
+                listaActivos.clearSelection();
             }
         });
         
-        // Botones
-        btnGuardar.addActionListener(e -> crearTickets());
+        // Evento para cambio de selección en la lista
+        listaActivos.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                actualizarEstadoBoton();
+            }
+        });
+        
+        // Eventos de botones
+        btnGuardar.addActionListener(e -> {
+            System.out.println("BOTÓN GUARDAR CLICKEADO - INICIANDO DEBUG");
+            crearTickets();
+        });
+        
         btnCancelar.addActionListener(e -> dispose());
         
-        // ESC para cerrar
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cerrar");
-        getRootPane().getActionMap().put("cerrar", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
+        // Tecla ESC para cancelar
+        getRootPane().registerKeyboardAction(
+            e -> dispose(),
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+            JComponent.WHEN_IN_FOCUSED_WINDOW
+        );
+        
+        // Eventos de campos de texto para validación
+        txtTitulo.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
+        });
+        
+        txtDescripcion.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { actualizarEstadoBoton(); }
         });
     }
     
@@ -397,14 +401,15 @@ public class CrearTicketMejoradoWindow extends JFrame {
         // Renderer para ubicaciones
         cmbUbicacion.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Ubicacion) {
+                if (value == null) {
+                    setText("Seleccione una ubicación...");
+                    setForeground(Color.GRAY);
+                } else {
                     Ubicacion ubicacion = (Ubicacion) value;
-                    setText(ubicacion.getUbiNombre() + " (" + ubicacion.getUbiTipo() + ")");
-                } else if (value == null) {
-                    setText("-- Seleccionar ubicación --");
+                    setText(ubicacion.getUbiNombre());
                 }
                 return this;
             }
@@ -413,14 +418,15 @@ public class CrearTicketMejoradoWindow extends JFrame {
         // Renderer para técnicos
         cmbTecnicoAsignado.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Usuario) {
+                if (value == null) {
+                    setText("Sin asignar");
+                    setForeground(Color.GRAY);
+                } else {
                     Usuario usuario = (Usuario) value;
-                    setText(usuario.getUsuNombre() + " (" + usuario.getUsuRol() + ")");
-                } else if (value == null) {
-                    setText("-- Sin asignar --");
+                    setText(usuario.getUsuNombre());
                 }
                 return this;
             }
@@ -432,74 +438,97 @@ public class CrearTicketMejoradoWindow extends JFrame {
         
         modeloListaActivos.clear();
         chkSeleccionarTodos.setSelected(false);
-        actualizarContadorSeleccionados();
         
-        if (ubicacionSeleccionada != null) {
-            try {
-                List<Activo> equipos = activoDAO.findByUbicacion(ubicacionSeleccionada.getUbiId());
-                for (Activo equipo : equipos) {
-                    if (equipo.getActEstado() == Activo.Estado.Operativo) {
-                        modeloListaActivos.addElement(equipo);
-                    }
+        if (ubicacionSeleccionada == null) {
+            actualizarEstadoBoton();
+            return;
+        }
+        
+        try {
+            List<Activo> equipos = activoDAO.findByUbicacion(ubicacionSeleccionada.getUbiId());
+            
+            for (Activo equipo : equipos) {
+                // Solo mostrar equipos operativos
+                if (equipo.getActEstado() == Activo.Estado.Operativo) {
+                    modeloListaActivos.addElement(equipo);
                 }
-                
-                mostrarInfo("Cargados " + modeloListaActivos.getSize() + " equipos operativos");
-                
-            } catch (Exception e) {
-                mostrarError("Error al cargar equipos: " + e.getMessage());
             }
+            
+            if (modeloListaActivos.isEmpty()) {
+                mostrarInfo("No hay equipos operativos en esta ubicación");
+            } else {
+                mostrarInfo("Se encontraron " + modeloListaActivos.getSize() + " equipos operativos");
+            }
+            
+        } catch (Exception e) {
+            mostrarError("Error al cargar equipos: " + e.getMessage());
         }
+        
+        actualizarEstadoBoton();
     }
     
-    private void seleccionarTodosEquipos() {
-        if (chkSeleccionarTodos.isSelected()) {
-            listaActivos.setSelectionInterval(0, modeloListaActivos.getSize() - 1);
-        } else {
-            listaActivos.clearSelection();
-        }
-        actualizarContadorSeleccionados();
-    }
-    
-    private void actualizarContadorSeleccionados() {
-        int seleccionados = listaActivos.getSelectedIndices().length;
+    private void actualizarEstadoBoton() {
+        int seleccionados = listaActivos.getSelectedValuesList().size();
+        
         lblCantidadSeleccionados.setText(seleccionados + " equipos seleccionados");
         
-        // Actualizar el botón
-        btnGuardar.setEnabled(seleccionados > 0 && validarFormulario());
+        // Actualizar el botón con debug
+        boolean formularioValido = validarFormulario();
+        boolean botonHabilitado = seleccionados > 0 && formularioValido;
+        
+        System.out.println("=== DEBUG BOTÓN ===");
+        System.out.println("Equipos seleccionados: " + seleccionados);
+        System.out.println("Formulario válido: " + formularioValido);
+        System.out.println("Botón habilitado: " + botonHabilitado);
+        
+        btnGuardar.setEnabled(botonHabilitado);
     }
     
     private boolean validarFormulario() {
-        if (cmbUbicacion.getSelectedItem() == null) return false;
-        if (txtTitulo.getText().trim().isEmpty()) return false;
-        if (txtDescripcion.getText().trim().isEmpty()) return false;
-        return true;
+        boolean ubicacionValida = cmbUbicacion.getSelectedItem() != null;
+        boolean tituloValido = !txtTitulo.getText().trim().isEmpty();
+        boolean descripcionValida = !txtDescripcion.getText().trim().isEmpty();
+        
+        System.out.println("Validación formulario:");
+        System.out.println("  Ubicación válida: " + ubicacionValida + " (" + cmbUbicacion.getSelectedItem() + ")");
+        System.out.println("  Título válido: " + tituloValido + " (" + txtTitulo.getText().trim() + ")");
+        System.out.println("  Descripción válida: " + descripcionValida + " (" + txtDescripcion.getText().trim() + ")");
+        
+        return ubicacionValida && tituloValido && descripcionValida;
     }
     
     private void crearTickets() {
+        System.out.println("=== INICIANDO CREACIÓN DE TICKETS ===");
+        
         if (!validarFormulario()) {
+            System.out.println("ERROR: Formulario no válido");
             mostrarError("Complete todos los campos obligatorios");
             return;
         }
         
         List<Activo> equiposSeleccionados = listaActivos.getSelectedValuesList();
         if (equiposSeleccionados.isEmpty()) {
-            mostrarError("Seleccione al menos un equipo");
+            System.out.println("ERROR: No hay equipos seleccionados");
+            mostrarError("Debe seleccionar al menos un equipo");
             return;
         }
         
-        // Confirmar creación
+        System.out.println("Equipos seleccionados: " + equiposSeleccionados.size());
+        
+        // Confirmación
         int respuesta = JOptionPane.showConfirmDialog(this,
             "¿Está seguro de crear " + equiposSeleccionados.size() + " tickets?\n\n" +
-            "Ubicación: " + ((Ubicacion) cmbUbicacion.getSelectedItem()).getUbiNombre() + "\n" +
-            "Tipo: " + cmbTipo.getSelectedItem() + "\n" +
-            "Prioridad: " + cmbPrioridad.getSelectedItem() + "\n" +
-            "Técnico: " + (cmbTecnicoAsignado.getSelectedItem() != null ? 
+            "🏢 Ubicación: " + ((Ubicacion) cmbUbicacion.getSelectedItem()).getUbiNombre() + "\n" +
+            "📋 Tipo: " + cmbTipo.getSelectedItem() + "\n" +
+            "⚡ Prioridad: " + cmbPrioridad.getSelectedItem() + "\n" +
+            "👨‍💻 Técnico: " + (cmbTecnicoAsignado.getSelectedItem() != null ? 
                         ((Usuario) cmbTecnicoAsignado.getSelectedItem()).getUsuNombre() : "Sin asignar"),
             "Confirmar Creación de Tickets",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE);
         
         if (respuesta != JOptionPane.YES_OPTION) {
+            System.out.println("Usuario canceló la operación");
             return;
         }
         
@@ -510,29 +539,36 @@ public class CrearTicketMejoradoWindow extends JFrame {
             
             int ticketsCreados = 0;
             for (Activo equipo : equiposSeleccionados) {
-                Ticket ticket = new Ticket();
-                ticket.setActId(equipo.getActId());
-                ticket.setTickTipo((Ticket.Tipo) cmbTipo.getSelectedItem());
-                ticket.setTickPrioridad((Ticket.Prioridad) cmbPrioridad.getSelectedItem());
-                ticket.setTickTitulo(txtTitulo.getText().trim());
-                ticket.setTickDescripcion(txtDescripcion.getText().trim() + 
-                    "\n\nEquipo: " + equipo.getActNumeroActivo() + " - " + equipo.getActMarca() + " " + equipo.getActModelo());
-                ticket.setTickEstado(Ticket.Estado.Abierto);
-                ticket.setTickFechaApertura(LocalDateTime.now());
-                ticket.setTickReportadoPor(usuarioActual.getUsuId());
-                
-                if (cmbTecnicoAsignado.getSelectedItem() != null) {
-                    Usuario tecnico = (Usuario) cmbTecnicoAsignado.getSelectedItem();
-                    ticket.setTickAsignadoA(tecnico.getUsuId());
+                try {
+                    System.out.println("Creando ticket para equipo: " + equipo.getActId() + " - " + equipo.getActNumeroActivo());
+                    
+                    Ticket ticket = new Ticket();
+                    ticket.setActId(equipo.getActId());
+                    ticket.setTickTipo((Ticket.Tipo) cmbTipo.getSelectedItem());
+                    ticket.setTickPrioridad((Ticket.Prioridad) cmbPrioridad.getSelectedItem());
+                    ticket.setTickTitulo(txtTitulo.getText().trim());
+                    ticket.setTickDescripcion(txtDescripcion.getText().trim() + 
+                        "\n\nEquipo: " + equipo.getActNumeroActivo() + " - " + equipo.getActMarca() + " " + equipo.getActModelo());
+                    ticket.setTickEstado(Ticket.Estado.Abierto);
+                    ticket.setTickFechaApertura(LocalDateTime.now());
+                    ticket.setTickReportadoPor(usuarioActual.getUsuId());
+                    
+                    if (cmbTecnicoAsignado.getSelectedItem() != null) {
+                        Usuario tecnico = (Usuario) cmbTecnicoAsignado.getSelectedItem();
+                        ticket.setTickAsignadoA(tecnico.getUsuId());
+                    }
+                    
+                    Ticket ticketGuardado = ticketDAO.guardar(ticket);
+                    System.out.println("Ticket creado con ID: " + ticketGuardado.getTickId());
+                    
+                    ticketsCreados++;
+                } catch (Exception e) {
+                    System.err.println("Error al crear ticket para activo " + equipo.getActId() + ": " + e.getMessage());
+                    e.printStackTrace();
                 }
-                
-                // Generar número único
-                String numeroTicket = "TK-" + System.currentTimeMillis() + "-" + equipo.getActId();
-                ticket.setTickNumero(numeroTicket);
-                
-                ticketDAO.guardar(ticket);
-                ticketsCreados++;
             }
+            
+            System.out.println("Tickets creados exitosamente: " + ticketsCreados);
             
             mostrarExito("✅ Se crearon " + ticketsCreados + " tickets exitosamente");
             
@@ -549,10 +585,23 @@ public class CrearTicketMejoradoWindow extends JFrame {
             dispose();
             
         } catch (Exception e) {
+            System.err.println("Error general al crear tickets: " + e.getMessage());
+            e.printStackTrace();
             mostrarError("Error al crear tickets: " + e.getMessage());
         } finally {
             btnGuardar.setEnabled(true);
         }
+    }
+    
+    // Métodos de utilidad para mensajes
+    private void mostrarInfo(String mensaje) {
+        lblStatus.setText("ℹ️ " + mensaje);
+        lblStatus.setForeground(COLOR_AZUL);
+    }
+    
+    private void mostrarExito(String mensaje) {
+        lblStatus.setText("✅ " + mensaje);
+        lblStatus.setForeground(COLOR_VERDE_COOPERATIVA);
     }
     
     private void mostrarError(String mensaje) {
@@ -560,45 +609,44 @@ public class CrearTicketMejoradoWindow extends JFrame {
         lblStatus.setForeground(COLOR_ROJO);
     }
     
-    private void mostrarExito(String mensaje) {
-        lblStatus.setText(mensaje);
-        lblStatus.setForeground(COLOR_VERDE_COOPERATIVA);
-    }
-    
-    private void mostrarInfo(String mensaje) {
-        lblStatus.setText("ℹ️ " + mensaje);
-        lblStatus.setForeground(COLOR_AZUL);
-    }
     // Renderer personalizado para la lista de activos
     private class ActivoCellRenderer extends DefaultListCellRenderer {
         @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             
             if (value instanceof Activo) {
                 Activo activo = (Activo) value;
-                setText(String.format("🖥️ %s - %s %s (%s)", 
-                    activo.getActNumeroActivo(),
-                    activo.getActMarca(),
-                    activo.getActModelo(),
-                    activo.getActEstado()));
+                setText("<html><b>" + activo.getActNumeroActivo() + "</b><br>" +
+                       "<small>" + activo.getActMarca() + " " + activo.getActModelo() + "</small></html>");
+                
+                if (isSelected) {
+                    setBackground(COLOR_VERDE_CLARO);
+                    setForeground(COLOR_GRIS_TEXTO);
+                }
             }
             
             return this;
         }
     }
     
-    // Método principal para pruebas
+    // Método main para pruebas
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            } catch (Exception e) {
+                // Usar Look and Feel por defecto
+            }
+            
+            // Usuario de prueba
             Usuario usuarioPrueba = new Usuario();
             usuarioPrueba.setUsuId(1);
-            usuarioPrueba.setUsuNombre("Admin");
-            usuarioPrueba.setUsuRol(Usuario.Rol.Jefe_Informatica);
+            usuarioPrueba.setUsuNombre("Admin Prueba");
             
             CrearTicketMejoradoWindow window = new CrearTicketMejoradoWindow(null, usuarioPrueba);
-            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             window.setVisible(true);
         });
     }

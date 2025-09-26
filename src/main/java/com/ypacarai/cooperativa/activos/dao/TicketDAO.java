@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -227,8 +228,9 @@ public class TicketDAO {
      */
     public Ticket guardar(Ticket ticket) throws SQLException {
         String sql = "INSERT INTO TICKET (act_id, tick_tipo, tick_prioridad, tick_titulo, " +
-                    "tick_descripcion, tick_fecha_vencimiento, tick_asignado_a, tick_reportado_por) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    "tick_descripcion, tick_estado, tick_fecha_apertura, tick_fecha_vencimiento, " +
+                    "tick_asignado_a, tick_reportado_por) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConfigComplete.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -238,20 +240,27 @@ public class TicketDAO {
             pstmt.setString(3, ticket.getTickPrioridad().name());
             pstmt.setString(4, ticket.getTickTitulo());
             pstmt.setString(5, ticket.getTickDescripcion());
+            pstmt.setString(6, ticket.getTickEstado().name());
+            
+            if (ticket.getTickFechaApertura() != null) {
+                pstmt.setTimestamp(7, Timestamp.valueOf(ticket.getTickFechaApertura()));
+            } else {
+                pstmt.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+            }
             
             if (ticket.getTickFechaVencimiento() != null) {
-                pstmt.setTimestamp(6, Timestamp.valueOf(ticket.getTickFechaVencimiento()));
+                pstmt.setTimestamp(8, Timestamp.valueOf(ticket.getTickFechaVencimiento()));
             } else {
-                pstmt.setNull(6, Types.TIMESTAMP);
+                pstmt.setNull(8, Types.TIMESTAMP);
             }
             
             if (ticket.getTickAsignadoA() != null) {
-                pstmt.setInt(7, ticket.getTickAsignadoA());
+                pstmt.setInt(9, ticket.getTickAsignadoA());
             } else {
-                pstmt.setNull(7, Types.INTEGER);
+                pstmt.setNull(9, Types.INTEGER);
             }
             
-            pstmt.setInt(8, ticket.getTickReportadoPor());
+            pstmt.setInt(10, ticket.getTickReportadoPor());
             
             int affectedRows = pstmt.executeUpdate();
             
@@ -262,13 +271,13 @@ public class TicketDAO {
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     ticket.setTickId(generatedKeys.getInt(1));
+                    // Note: El tick_numero se genera automáticamente por el trigger
+                    return ticket;
                 } else {
                     throw new SQLException("Error al crear ticket, no se obtuvo el ID.");
                 }
             }
         }
-        
-        return ticket;
     }
     
     /**

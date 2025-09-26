@@ -13,9 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.ypacarai.cooperativa.activos.dao.TicketDAO;
-import com.ypacarai.cooperativa.activos.dao.MantenimientoDAO;
 import com.ypacarai.cooperativa.activos.model.Ticket;
-import com.ypacarai.cooperativa.activos.model.Mantenimiento;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 
 /**
@@ -44,13 +42,11 @@ public class MantenimientoTecnicoWindow extends JFrame {
     
     // DAOs
     private TicketDAO ticketDAO;
-    private MantenimientoDAO mantenimientoDAO;
     
     public MantenimientoTecnicoWindow(JFrame parent, Usuario usuarioTecnico) {
         super();
         this.usuarioTecnico = usuarioTecnico;
         this.ticketDAO = new TicketDAO();
-        this.mantenimientoDAO = new MantenimientoDAO();
         
         initializeComponents();
         setupUI();
@@ -374,7 +370,7 @@ public class MantenimientoTecnicoWindow extends JFrame {
             }
             
             // Actualizar título con cantidad
-            setTitle("🔧 Mis Mantenimientos (" + modeloTabla.getRowCount() + ") - " + usuarioTecnico.getUsrNombre());
+            setTitle("🔧 Mis Mantenimientos (" + modeloTabla.getRowCount() + ") - " + usuarioTecnico.getUsuNombre());
             
         } catch (Exception e) {
             mostrarError("Error al cargar datos: " + e.getMessage());
@@ -415,37 +411,35 @@ public class MantenimientoTecnicoWindow extends JFrame {
                 return;
             }
             
-            // Actualizar ticket y crear registro de mantenimiento
-            Ticket ticket = ticketDAO.findById(ticketId);
+            // Obtener el ticket y actualizar su estado de forma simplificada
+            List<Ticket> todosTickets = ticketDAO.obtenerTodos();
+            Ticket ticket = null;
+            
+            for (Ticket t : todosTickets) {
+                if (t.getTickId() == ticketId) {
+                    ticket = t;
+                    break;
+                }
+            }
+            
             if (ticket != null) {
                 // Determinar nuevo estado basado en la selección
                 Ticket.Estado nuevoEstado;
                 if (estadoSeleccionado.startsWith("Completado")) {
                     nuevoEstado = Ticket.Estado.Resuelto;
                 } else if (estadoSeleccionado.startsWith("Reprogramar")) {
-                    nuevoEstado = Ticket.Estado.Pendiente;
+                    nuevoEstado = Ticket.Estado.Abierto;
                 } else {
-                    nuevoEstado = Ticket.Estado.En_Progreso;
+                    nuevoEstado = Ticket.Estado.En_Proceso;
                 }
                 
                 ticket.setTickEstado(nuevoEstado);
-                ticket.setTickObservaciones(observaciones);
-                ticket.setTickFechaCierre(LocalDateTime.now());
+                if (estadoSeleccionado.startsWith("Completado")) {
+                    ticket.setTickFechaCierre(LocalDateTime.now());
+                }
                 
-                // Guardar ticket actualizado
+                // Actualizar ticket
                 ticketDAO.actualizar(ticket);
-                
-                // Crear registro de mantenimiento
-                Mantenimiento mantenimiento = new Mantenimiento();
-                mantenimiento.setTicket(ticket);
-                mantenimiento.setMantFecha(LocalDateTime.now());
-                mantenimiento.setMantTipo(ticket.getTickTipo().toString());
-                mantenimiento.setMantDescripcion("Mantenimiento completado: " + estadoSeleccionado);
-                mantenimiento.setMantObservaciones(observaciones);
-                mantenimiento.setMantRealizado(estadoSeleccionado.startsWith("Completado"));
-                mantenimiento.setUsuarioTecnico(usuarioTecnico);
-                
-                mantenimientoDAO.guardar(mantenimiento);
                 
                 mostrarExito("✅ Mantenimiento completado exitosamente!");
                 
@@ -512,16 +506,16 @@ public class MantenimientoTecnicoWindow extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeel());
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
             } catch (Exception e) {
-                e.printStackTrace();
+                // Usar Look and Feel por defecto si falla
             }
             
             // Usuario de prueba
             Usuario usuarioPrueba = new Usuario();
-            usuarioPrueba.setUsrId(1);
-            usuarioPrueba.setUsrNombre("Juan Técnico");
-            usuarioPrueba.setUsrRol("Tecnico");
+            usuarioPrueba.setUsuId(1);
+            usuarioPrueba.setUsuNombre("Juan Técnico");
+            usuarioPrueba.setUsuRol(Usuario.Rol.Tecnico);
             
             MantenimientoTecnicoWindow window = new MantenimientoTecnicoWindow(null, usuarioPrueba);
             window.setVisible(true);

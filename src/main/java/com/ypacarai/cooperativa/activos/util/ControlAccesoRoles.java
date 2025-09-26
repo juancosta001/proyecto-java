@@ -1,7 +1,14 @@
 package com.ypacarai.cooperativa.activos.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.ypacarai.cooperativa.activos.model.Usuario;
-import java.util.*;
 
 /**
  * Gestor de Control de Acceso Basado en Roles (RBAC)
@@ -73,10 +80,10 @@ public class ControlAccesoRoles {
             Permiso.VER_ACTIVOS,
             Permiso.CREAR_ACTIVOS,
             Permiso.EDITAR_ACTIVOS,
-            // Tickets - puede trabajar con tickets
-            Permiso.VER_TICKETS,
-            Permiso.CREAR_TICKETS,
-            Permiso.EDITAR_TICKETS,
+            // Tickets - no  puede trabajar con tickets
+           // Permiso.VER_TICKETS,
+        //    Permiso.CREAR_TICKETS,
+          //  Permiso.EDITAR_TICKETS,
             // Mantenimiento - puede realizar mantenimientos
             Permiso.VER_MANTENIMIENTO,
             Permiso.CREAR_MANTENIMIENTO,
