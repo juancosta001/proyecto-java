@@ -646,9 +646,18 @@ public class MantenimientoTercerizadoPanel extends JPanel {
         if (filaSeleccionada >= 0) {
             try {
                 int mantenimientoId = (Integer) modeloMantenimientos.getValueAt(filaSeleccionada, 0);
+                System.out.println("=== DEBUG: Ver Detalles Mantenimiento ===");
+                System.out.println("ID seleccionado: " + mantenimientoId);
+                
                 MantenimientoTercerizado mantenimiento = mantenimientoService.obtenerPorId(mantenimientoId);
                 
                 if (mantenimiento != null) {
+                    System.out.println("Mantenimiento obtenido:");
+                    System.out.println("- Número Activo: '" + mantenimiento.getNumeroActivo() + "'");
+                    System.out.println("- Marca Activo: '" + mantenimiento.getMarcaActivo() + "'");
+                    System.out.println("- Modelo Activo: '" + mantenimiento.getModeloActivo() + "'");
+                    System.out.println("- Nombre Registrador: '" + mantenimiento.getNombreRegistrador() + "'");
+                    
                     DetallesMantenimientoWindow ventana = new DetallesMantenimientoWindow(this, mantenimiento);
                     ventana.setVisible(true);
                 } else {

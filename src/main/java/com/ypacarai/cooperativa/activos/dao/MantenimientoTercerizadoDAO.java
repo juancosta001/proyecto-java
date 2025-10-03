@@ -37,7 +37,7 @@ public class MantenimientoTercerizadoDAO {
         "ps.telefono as proveedor_telefono, " +
         "a.act_numero_activo as activo_numero, a.act_marca as activo_marca, " +
         "a.act_modelo as activo_modelo, " +
-        "u.usu_nombre as usuario_nombre, u.usu_apellido as usuario_apellido " +
+        "u.usu_nombre as usuario_nombre " +
         "FROM mantenimiento_tercerizado mt " +
         "INNER JOIN proveedor_servicio ps ON ps.id = mt.proveedor_id " +
         "INNER JOIN activo a ON a.act_id = mt.act_id " +
@@ -466,9 +466,8 @@ public class MantenimientoTercerizadoDAO {
         
         // Campos relacionados del usuario
         String nombreUsuario = rs.getString("usuario_nombre");
-        String apellidoUsuario = rs.getString("usuario_apellido");
-        if (nombreUsuario != null && apellidoUsuario != null) {
-            mantenimiento.setNombreRegistrador(nombreUsuario + " " + apellidoUsuario);
+        if (nombreUsuario != null) {
+            mantenimiento.setNombreRegistrador(nombreUsuario);
         }
         
         return mantenimiento;

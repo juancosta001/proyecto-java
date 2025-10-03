@@ -92,6 +92,7 @@ com\ypacarai\cooperativa\activos\model\PlanMantenimiento.class
 com\ypacarai\cooperativa\activos\model\Mantenimiento$TipoMantenimiento.class
 com\ypacarai\cooperativa\activos\model\FiltrosReporte.class
 com\ypacarai\cooperativa\activos\view\MantenimientoTercerizadoPanel$4.class
+com\ypacarai\cooperativa\activos\TestRetiroEntregaCompleto.class
 com\ypacarai\cooperativa\activos\model\Usuario$Rol.class
 com\ypacarai\cooperativa\activos\view\DetallesMantenimientoWindow.class
 com\ypacarai\cooperativa\activos\model\ConfiguracionSistema$TipoParametro.class
@@ -112,6 +113,7 @@ com\ypacarai\cooperativa\activos\view\CrearUsuarioWindow$6.class
 com\ypacarai\cooperativa\activos\view\ConfiguracionPanel$4.class
 com\ypacarai\cooperativa\activos\view\CrearTicketMejoradoWindow$ActivoCellRenderer.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$5.class
+com\ypacarai\cooperativa\activos\TestVisualizacionActivos.class
 com\ypacarai\cooperativa\activos\view\PruebaControlAcceso.class
 com\ypacarai\cooperativa\activos\dao\AlertaMantenimientoDAO.class
 com\ypacarai\cooperativa\activos\util\ControlAccesoRoles$1.class
@@ -125,6 +127,7 @@ com\ypacarai\cooperativa\activos\view\MantenimientoPanel$3.class
 com\ypacarai\cooperativa\activos\model\ProveedorServicio.class
 com\ypacarai\cooperativa\activos\view\components\RoundedPanel.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$3.class
+com\ypacarai\cooperativa\activos\TestMantenimientoEspecifico.class
 com\ypacarai\cooperativa\activos\model\Traslado$EstadoTraslado.class
 com\ypacarai\cooperativa\activos\view\MainWindowNew$1.class
 com\ypacarai\cooperativa\activos\view\MantenimientoTercerizadoPanel.class
@@ -192,6 +195,7 @@ com\ypacarai\cooperativa\activos\view\MainWindowNew$6.class
 com\ypacarai\cooperativa\activos\view\MantenimientoTecnicoWindow$4.class
 com\ypacarai\cooperativa\activos\model\FichaReporte$EstadoFicha.class
 com\ypacarai\cooperativa\activos\view\PruebaControlAcceso$1.class
+com\ypacarai\cooperativa\activos\TestComparacionMetodos.class
 com\ypacarai\cooperativa\activos\view\LoginWindowNew$6.class
 com\ypacarai\cooperativa\activos\model\ReporteTraslados.class
 com\ypacarai\cooperativa\activos\view\InventarioActivosPanel$1.class
