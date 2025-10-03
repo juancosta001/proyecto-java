@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.ypacarai.cooperativa.activos.dao.TicketDAO;
+import com.ypacarai.cooperativa.activos.dao.TicketAsignacionDAO;
 import com.ypacarai.cooperativa.activos.model.Ticket;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 
@@ -42,11 +43,13 @@ public class MantenimientoTecnicoWindow extends JFrame {
     
     // DAOs
     private TicketDAO ticketDAO;
+    private TicketAsignacionDAO asignacionDAO;
     
     public MantenimientoTecnicoWindow(JFrame parent, Usuario usuarioTecnico) {
         super();
         this.usuarioTecnico = usuarioTecnico;
         this.ticketDAO = new TicketDAO();
+        this.asignacionDAO = new TicketAsignacionDAO();
         
         initializeComponents();
         setupUI();
@@ -343,25 +346,33 @@ public class MantenimientoTecnicoWindow extends JFrame {
             // Limpiar tabla
             modeloTabla.setRowCount(0);
             
-            // Cargar todos los tickets y filtrar los asignados al técnico
-            List<Ticket> todosTickets = ticketDAO.obtenerTodos();
+            // Obtener tickets asignados al técnico usando el nuevo sistema
+            List<Integer> ticketIds = asignacionDAO.obtenerTicketsAsignados(usuarioTecnico.getUsuId());
+            
+            if (ticketIds.isEmpty()) {
+                System.out.println("No hay tickets asignados al técnico: " + usuarioTecnico.getUsuNombre());
+                setTitle("🔧 Mis Mantenimientos (0) - " + usuarioTecnico.getUsuNombre());
+                return;
+            }
+            
+            // Obtener los tickets completos
+            List<Ticket> ticketsAsignados = ticketDAO.obtenerPorIds(ticketIds);
             
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             
-            for (Ticket ticket : todosTickets) {
-                // Solo mostrar tickets asignados al técnico y que no están completados
-                if ((ticket.getTickAsignadoA() == usuarioTecnico.getUsuId()) &&
-                    (ticket.getTickEstado() == Ticket.Estado.Abierto || 
-                     ticket.getTickEstado() == Ticket.Estado.En_Proceso)) {
+            for (Ticket ticket : ticketsAsignados) {
+                // Solo mostrar tickets que no están completados
+                if (ticket.getTickEstado() == Ticket.Estado.Abierto || 
+                    ticket.getTickEstado() == Ticket.Estado.En_Proceso) {
                     
                     Object[] fila = {
                         ticket.getTickId(),
                         ticket.getActivoNumero() != null ? ticket.getActivoNumero() : "N/A",
-                        "N/A", // Ubicación - simplificado
-                        ticket.getTickTipo().toString().replace("_", " "),
-                        ticket.getTickPrioridad().toString(),
-                        ticket.getTickEstado().toString().replace("_", " "),
-                        ticket.getTickFechaApertura().format(formatter),
+                        ticket.getUbicacionNombre() != null ? ticket.getUbicacionNombre() : "Sin ubicación",
+                        ticket.getTickTipo() != null ? ticket.getTickTipo().toString().replace("_", " ") : "N/A",
+                        ticket.getTickPrioridad() != null ? ticket.getTickPrioridad().toString() : "N/A",
+                        ticket.getTickEstado() != null ? ticket.getTickEstado().toString().replace("_", " ") : "N/A",
+                        ticket.getTickFechaApertura() != null ? ticket.getTickFechaApertura().format(formatter) : "N/A",
                         ticket.getTickFechaVencimiento() != null ? 
                             ticket.getTickFechaVencimiento().format(formatter) : "No programada"
                     };
@@ -373,7 +384,10 @@ public class MantenimientoTecnicoWindow extends JFrame {
             setTitle("🔧 Mis Mantenimientos (" + modeloTabla.getRowCount() + ") - " + usuarioTecnico.getUsuNombre());
             
         } catch (Exception e) {
-            mostrarError("Error al cargar datos: " + e.getMessage());
+            System.err.println("Error detallado al cargar datos: " + e.getMessage());
+            e.printStackTrace();
+            mostrarError("Error al cargar datos: " + e.getMessage() + 
+                        "\nDetalles: " + (e.getCause() != null ? e.getCause().getMessage() : "N/A"));
         }
     }
     

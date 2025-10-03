@@ -24,37 +24,60 @@ public class TicketAsignacionDAO {
      * Asignar múltiples técnicos a un ticket
      */
     public boolean asignarTecnicos(int ticketId, List<TicketAsignacion> asignaciones) throws SQLException {
-        String sql = "{CALL sp_asignar_tecnicos_ticket(?, ?, ?)}";
-        
-        try (Connection conn = DatabaseConfigComplete.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
+        Connection conn = null;
+        try {
+            conn = DatabaseConfigComplete.getConnection();
+            conn.setAutoCommit(false);
             
-            // Construir JSON con las asignaciones
-            StringBuilder jsonBuilder = new StringBuilder("[");
-            for (int i = 0; i < asignaciones.size(); i++) {
-                if (i > 0) jsonBuilder.append(",");
-                TicketAsignacion asig = asignaciones.get(i);
-                jsonBuilder.append("{")
-                    .append("\"usu_id\":").append(asig.getUsuId()).append(",")
-                    .append("\"rol\":\"").append(asig.getTasRolAsignacion()).append("\"")
-                    .append("}");
+            // 1. Desactivar asignaciones existentes
+            String sqlDesactivar = "UPDATE ticket_asignaciones SET tas_activo = FALSE, actualizado_en = NOW() WHERE tick_id = ?";
+            try (PreparedStatement stmtDesactivar = conn.prepareStatement(sqlDesactivar)) {
+                stmtDesactivar.setInt(1, ticketId);
+                stmtDesactivar.executeUpdate();
             }
-            jsonBuilder.append("]");
             
-            // Obtener observaciones de la primera asignación o usar cadena vacía
-            String observaciones = asignaciones.isEmpty() ? "" : 
-                (asignaciones.get(0).getTasObservaciones() != null ? asignaciones.get(0).getTasObservaciones() : "");
+            // 2. Insertar nuevas asignaciones
+            String sqlInsertar = "INSERT INTO ticket_asignaciones (tick_id, usu_id, tas_rol_asignacion, tas_observaciones, tas_activo) " +
+                               "VALUES (?, ?, ?, ?, TRUE) " +
+                               "ON DUPLICATE KEY UPDATE " +
+                               "tas_activo = TRUE, " +
+                               "tas_rol_asignacion = VALUES(tas_rol_asignacion), " +
+                               "tas_observaciones = VALUES(tas_observaciones), " +
+                               "actualizado_en = NOW()";
             
-            stmt.setInt(1, ticketId);
-            stmt.setString(2, jsonBuilder.toString());
-            stmt.setString(3, observaciones);
+            try (PreparedStatement stmtInsertar = conn.prepareStatement(sqlInsertar)) {
+                for (TicketAsignacion asignacion : asignaciones) {
+                    stmtInsertar.setInt(1, ticketId);
+                    stmtInsertar.setInt(2, asignacion.getUsuId());
+                    stmtInsertar.setString(3, asignacion.getTasRolAsignacion().toString());
+                    stmtInsertar.setString(4, asignacion.getTasObservaciones());
+                    stmtInsertar.addBatch();
+                }
+                stmtInsertar.executeBatch();
+            }
             
-            stmt.execute();
+            conn.commit();
             return true;
             
         } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println("Error en rollback: " + rollbackEx.getMessage());
+                }
+            }
             System.err.println("Error al asignar técnicos: " + e.getMessage());
             throw e;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException closeEx) {
+                    System.err.println("Error al cerrar conexión: " + closeEx.getMessage());
+                }
+            }
         }
     }
     
@@ -62,11 +85,25 @@ public class TicketAsignacionDAO {
      * Obtener todos los técnicos asignados a un ticket
      */
     public List<TicketAsignacion> obtenerTecnicosAsignados(int ticketId) throws SQLException {
-        String sql = "{CALL sp_obtener_tecnicos_ticket(?)}";
+        String sql = "SELECT " +
+                    "ta.tas_id, ta.tick_id, ta.usu_id, " +
+                    "u.usu_nombre, u.usu_email, " +
+                    "ta.tas_rol_asignacion, ta.tas_fecha_asignacion, ta.tas_observaciones " +
+                    "FROM ticket_asignaciones ta " +
+                    "INNER JOIN usuario u ON ta.usu_id = u.usu_id " +
+                    "WHERE ta.tick_id = ? AND ta.tas_activo = TRUE " +
+                    "ORDER BY " +
+                    "CASE ta.tas_rol_asignacion " +
+                    "    WHEN 'Responsable' THEN 1 " +
+                    "    WHEN 'Supervisor' THEN 2 " +
+                    "    WHEN 'Colaborador' THEN 3 " +
+                    "    ELSE 4 " +
+                    "END, u.usu_nombre";
+        
         List<TicketAsignacion> asignaciones = new ArrayList<>();
         
         try (Connection conn = DatabaseConfigComplete.getConnection();
-             CallableStatement stmt = conn.prepareCall(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, ticketId);
             
@@ -199,7 +236,7 @@ public class TicketAsignacionDAO {
                     "INNER JOIN ticket t ON ta.tick_id = t.tick_id " +
                     "WHERE ta.usu_id = ? AND ta.tas_activo = TRUE " +
                     "AND t.tick_estado IN ('Abierto', 'En_Proceso') " +
-                    "ORDER BY ta.tas_fecha_asignacion DESC";
+                    "ORDER BY ta.tick_id DESC";
         
         List<Integer> ticketIds = new ArrayList<>();
         

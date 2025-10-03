@@ -43,6 +43,7 @@ public class Ticket {
     private String activoNumero;
     private String tecnicoAsignado;
     private String usuarioReporta;
+    private String ubicacionNombre;
     
     // Constructores
     public Ticket() {}
@@ -227,6 +228,14 @@ public class Ticket {
     
     public void setUsuarioReporta(String usuarioReporta) {
         this.usuarioReporta = usuarioReporta;
+    }
+    
+    public String getUbicacionNombre() {
+        return ubicacionNombre;
+    }
+    
+    public void setUbicacionNombre(String ubicacionNombre) {
+        this.ubicacionNombre = ubicacionNombre;
     }
     
     @Override

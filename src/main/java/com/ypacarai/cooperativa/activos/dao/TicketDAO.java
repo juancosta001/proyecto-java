@@ -32,11 +32,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "ORDER BY t.tick_fecha_apertura DESC";
         
         try (Connection conn = DatabaseConfigComplete.getConnection();
@@ -64,11 +66,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.tick_estado = ? " +
                     "ORDER BY t.tick_fecha_apertura DESC";
         
@@ -100,11 +104,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.tick_asignado_a = ? " +
                     "ORDER BY t.tick_fecha_apertura DESC";
         
@@ -136,11 +142,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.tick_fecha_vencimiento < NOW() AND t.tick_estado IN ('Abierto', 'En_Proceso') " +
                     "ORDER BY t.tick_fecha_vencimiento ASC";
         
@@ -168,11 +176,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.tick_id = ?";
         
         try (Connection conn = DatabaseConfigComplete.getConnection();
@@ -201,11 +211,13 @@ public class TicketDAO {
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
                     "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "u_asignado.usu_nombre AS tecnico_asignado, " +
-                    "u_reporta.usu_nombre AS reportado_por " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
                     "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
                     "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.tick_numero = ?";
         
         try (Connection conn = DatabaseConfigComplete.getConnection();
@@ -443,6 +455,7 @@ public class TicketDAO {
         ticket.setActivoNumero(rs.getString("act_numero_activo"));
         ticket.setTecnicoAsignado(rs.getString("tecnico_asignado"));
         ticket.setUsuarioReporta(rs.getString("reportado_por"));
+        ticket.setUbicacionNombre(rs.getString("ubicacion_nombre"));
         
         return ticket;
     }
@@ -470,13 +483,15 @@ public class TicketDAO {
                     "t.tick_fecha_vencimiento, t.tick_fecha_cierre, t.tick_asignado_a, " +
                     "t.tick_reportado_por, t.tick_solucion, t.tick_tiempo_resolucion, " +
                     "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
-                    "a.act_numero_activo, " +
+                    "a.act_numero_activo, a.act_marca, a.act_modelo, " +
                     "ua.usu_nombre AS tecnico_asignado, " +
-                    "ur.usu_nombre AS reportado_por " +
+                    "ur.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
                     "FROM TICKET t " +
                     "LEFT JOIN ACTIVO a ON t.act_id = a.act_id " +
                     "LEFT JOIN USUARIO ua ON t.tick_asignado_a = ua.usu_id " +
                     "LEFT JOIN USUARIO ur ON t.tick_reportado_por = ur.usu_id " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
                     "WHERE t.act_id = ?";
 
         try (Connection conn = DatabaseConfigComplete.getConnection();
@@ -495,5 +510,54 @@ public class TicketDAO {
         }
 
         return TICKET;
+    }
+    
+    /**
+     * Obtiene tickets por una lista de IDs específicos
+     */
+    public List<Ticket> obtenerPorIds(List<Integer> ticketIds) throws SQLException {
+        if (ticketIds == null || ticketIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<Ticket> tickets = new ArrayList<>();
+        
+        // Crear placeholders para la consulta IN
+        String placeholders = String.join(",", ticketIds.stream().map(id -> "?").toArray(String[]::new));
+        
+        String sql = "SELECT t.tick_id, t.act_id, t.tick_numero, t.tick_tipo, t.tick_prioridad, " +
+                    "t.tick_titulo, t.tick_descripcion, t.tick_estado, t.tick_fecha_apertura, " +
+                    "t.tick_fecha_vencimiento, t.tick_fecha_cierre, t.tick_asignado_a, " +
+                    "t.tick_reportado_por, t.tick_solucion, t.tick_tiempo_resolucion, " +
+                    "t.tick_notificacion_enviada, t.creado_en, t.actualizado_en, " +
+                    "a.act_numero_activo, a.act_marca, a.act_modelo, " +
+                    "u_asignado.usu_nombre AS tecnico_asignado, " +
+                    "u_reporta.usu_nombre AS reportado_por, " +
+                    "ub.ubi_nombre AS ubicacion_nombre " +
+                    "FROM TICKET t " +
+                    "INNER JOIN ACTIVO a ON a.act_id = t.act_id " +
+                    "LEFT JOIN USUARIO u_asignado ON u_asignado.usu_id = t.tick_asignado_a " +
+                    "LEFT JOIN USUARIO u_reporta ON u_reporta.usu_id = t.tick_reportado_por " +
+                    "LEFT JOIN UBICACION ub ON ub.ubi_id = a.act_ubicacion_actual " +
+                    "WHERE t.tick_id IN (" + placeholders + ") " +
+                    "ORDER BY t.tick_fecha_apertura DESC";
+        
+        try (Connection conn = DatabaseConfigComplete.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            // Establecer los parámetros
+            for (int i = 0; i < ticketIds.size(); i++) {
+                pstmt.setInt(i + 1, ticketIds.get(i));
+            }
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Ticket ticket = mapearDesdeResultSet(rs);
+                    tickets.add(ticket);
+                }
+            }
+        }
+        
+        return tickets;
     }
 }
