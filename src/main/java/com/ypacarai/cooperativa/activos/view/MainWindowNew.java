@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
@@ -970,12 +971,22 @@ public class MainWindowNew extends JFrame {
             
             panelMantenimiento.add(contenedorTecnico, BorderLayout.CENTER);
         } else {
-            // Para otros roles, usar el panel completo de mantenimiento
-            MantenimientoPanel mantenimientoPanel = new MantenimientoPanel(usuarioActual);
-            
-            // Crear panel contenedor con título
+            // Para otros roles, crear un panel con pestañas para diferentes tipos de mantenimiento
             panelMantenimiento = createWhitePanel("🔧 Sistema de Mantenimiento");
-            panelMantenimiento.add(mantenimientoPanel, BorderLayout.CENTER);
+            
+            // Crear panel con pestañas
+            JTabbedPane tabbedMantenimiento = new JTabbedPane(JTabbedPane.TOP);
+            tabbedMantenimiento.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+            
+            // Pestaña de mantenimiento preventivo/correctivo tradicional
+            MantenimientoPanel mantenimientoPanel = new MantenimientoPanel(usuarioActual);
+            tabbedMantenimiento.addTab("🔧 Mantenimiento Interno", mantenimientoPanel);
+            
+            // Pestaña de mantenimiento tercerizado
+            MantenimientoTercerizadoPanel mantenimientoTercerizadoPanel = new MantenimientoTercerizadoPanel(usuarioActual);
+            tabbedMantenimiento.addTab("🏢 Mantenimiento Tercerizado", mantenimientoTercerizadoPanel);
+            
+            panelMantenimiento.add(tabbedMantenimiento, BorderLayout.CENTER);
         }
         
         panelContenido.add(panelMantenimiento, "mantenimiento");

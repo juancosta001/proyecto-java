@@ -7,16 +7,23 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Date;
+import java.util.Calendar;
 
 import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
 import com.ypacarai.cooperativa.activos.dao.UbicacionDAO;
 import com.ypacarai.cooperativa.activos.dao.UsuarioDAO;
 import com.ypacarai.cooperativa.activos.dao.TicketDAO;
+import com.ypacarai.cooperativa.activos.dao.TicketAsignacionDAO;
 import com.ypacarai.cooperativa.activos.model.Activo;
 import com.ypacarai.cooperativa.activos.model.Ubicacion;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.model.Ticket;
+import com.ypacarai.cooperativa.activos.model.TicketAsignacion;
+import com.ypacarai.cooperativa.activos.view.components.MultiTecnicoSelectorPanel;
 
 /**
  * Ventana Mejorada para Crear Tickets por Ubicación
@@ -34,12 +41,12 @@ public class CrearTicketMejoradoWindow extends JFrame {
     
     // Componentes de la interfaz
     private JComboBox<Ubicacion> cmbUbicacion;
-    private JComboBox<Activo> cmbActivo;
     private JComboBox<Ticket.Tipo> cmbTipo;
     private JComboBox<Ticket.Prioridad> cmbPrioridad;
-    private JComboBox<Usuario> cmbTecnicoAsignado;
+    private MultiTecnicoSelectorPanel selectorTecnicos;
     private JTextField txtTitulo;
     private JTextArea txtDescripcion;
+    private JSpinner spnFechaVencimiento;
     private JCheckBox chkSeleccionarTodos;
     private JList<Activo> listaActivos;
     private DefaultListModel<Activo> modeloListaActivos;
@@ -54,6 +61,7 @@ public class CrearTicketMejoradoWindow extends JFrame {
     private ActivoDAO activoDAO;
     private UsuarioDAO usuarioDAO;
     private TicketDAO ticketDAO;
+    private TicketAsignacionDAO asignacionDAO;
     
     // Usuario actual
     private Usuario usuarioActual;
@@ -75,6 +83,7 @@ public class CrearTicketMejoradoWindow extends JFrame {
             this.activoDAO = new ActivoDAO();
             this.usuarioDAO = new UsuarioDAO();
             this.ticketDAO = new TicketDAO();
+            this.asignacionDAO = new TicketAsignacionDAO();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, 
                 "Error al inicializar conexiones: " + e.getMessage(), 
@@ -151,9 +160,19 @@ public class CrearTicketMejoradoWindow extends JFrame {
         JPanel panelDatos = createDataPanel();
         panel.add(panelDatos, BorderLayout.NORTH);
         
-        // Panel central - Selección de equipos
+        // Panel central combinado (técnicos y equipos)
+        JPanel panelCentral = new JPanel(new BorderLayout(0, 10));
+        panelCentral.setOpaque(false);
+        
+        // Selector de técnicos
+        selectorTecnicos = new MultiTecnicoSelectorPanel();
+        panelCentral.add(selectorTecnicos, BorderLayout.NORTH);
+        
+        // Panel de selección de equipos
         JPanel panelEquipos = createEquipmentPanel();
-        panel.add(panelEquipos, BorderLayout.CENTER);
+        panelCentral.add(panelEquipos, BorderLayout.CENTER);
+        
+        panel.add(panelCentral, BorderLayout.CENTER);
         
         return panel;
     }
@@ -196,27 +215,37 @@ public class CrearTicketMejoradoWindow extends JFrame {
         panel.add(cmbPrioridad = new JComboBox<>(Ticket.Prioridad.values()), gbc);
         cmbPrioridad.setSelectedItem(Ticket.Prioridad.Media);
         
-        // Técnico
-        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
-        panel.add(new JLabel("👨‍💻 Técnico:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
-        panel.add(cmbTecnicoAsignado = new JComboBox<>(), gbc);
-        
         // Título
-        gbc.gridx = 0; gbc.gridy = 4; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        gbc.gridx = 0; gbc.gridy = 3; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
         panel.add(new JLabel("📝 Título:"), gbc);
         gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
         panel.add(txtTitulo = new JTextField(), gbc);
         
         // Descripción
-        gbc.gridx = 0; gbc.gridy = 5; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0; gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridx = 0; gbc.gridy = 4; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0; gbc.anchor = GridBagConstraints.NORTHWEST;
         panel.add(new JLabel("📋 Descripción:"), gbc);
-        gbc.gridx = 1; gbc.fill = GridBagConstraints.BOTH; gbc.weightx = 1.0; gbc.weighty = 1.0;
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.BOTH; gbc.weightx = 1.0; gbc.weighty = 0.3;
         txtDescripcion = new JTextArea(3, 30);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
         txtDescripcion.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         panel.add(new JScrollPane(txtDescripcion), gbc);
+        
+        // Fecha de vencimiento
+        gbc.gridx = 0; gbc.gridy = 5; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0; gbc.weighty = 0; gbc.anchor = GridBagConstraints.WEST;
+        panel.add(new JLabel("📅 Vencimiento:"), gbc);
+        gbc.gridx = 1; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        
+        // Configurar spinner de fecha (7 días después por defecto)
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 7);
+        Date fechaDefecto = cal.getTime();
+        
+        SpinnerDateModel modeloFecha = new SpinnerDateModel(fechaDefecto, new Date(), null, Calendar.DAY_OF_MONTH);
+        spnFechaVencimiento = new JSpinner(modeloFecha);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(spnFechaVencimiento, "dd/MM/yyyy HH:mm");
+        spnFechaVencimiento.setEditor(editor);
+        panel.add(spnFechaVencimiento, gbc);
         
         return panel;
     }
@@ -381,13 +410,12 @@ public class CrearTicketMejoradoWindow extends JFrame {
                 cmbUbicacion.addItem(ubicacion);
             }
             
-            // Cargar técnicos
+            // Cargar técnicos en el selector múltiple
             List<Usuario> tecnicos = usuarioDAO.obtenerTecnicos();
-            cmbTecnicoAsignado.removeAllItems();
-            cmbTecnicoAsignado.addItem(null); // Sin asignar
-            for (Usuario tecnico : tecnicos) {
-                cmbTecnicoAsignado.addItem(tecnico);
-            }
+            selectorTecnicos.setTecnicosDisponibles(tecnicos);
+            
+            // Agregar listener para cambios en el selector de técnicos
+            selectorTecnicos.addChangeListener(this::actualizarEstadoBoton);
             
             // Configurar renderers
             configurarRenderers();
@@ -410,23 +438,6 @@ public class CrearTicketMejoradoWindow extends JFrame {
                 } else {
                     Ubicacion ubicacion = (Ubicacion) value;
                     setText(ubicacion.getUbiNombre());
-                }
-                return this;
-            }
-        });
-        
-        // Renderer para técnicos
-        cmbTecnicoAsignado.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value == null) {
-                    setText("Sin asignar");
-                    setForeground(Color.GRAY);
-                } else {
-                    Usuario usuario = (Usuario) value;
-                    setText(usuario.getUsuNombre());
                 }
                 return this;
             }
@@ -488,11 +499,13 @@ public class CrearTicketMejoradoWindow extends JFrame {
         boolean ubicacionValida = cmbUbicacion.getSelectedItem() != null;
         boolean tituloValido = !txtTitulo.getText().trim().isEmpty();
         boolean descripcionValida = !txtDescripcion.getText().trim().isEmpty();
+        boolean hayTecnicos = selectorTecnicos.hayAsignaciones();
         
         System.out.println("Validación formulario:");
         System.out.println("  Ubicación válida: " + ubicacionValida + " (" + cmbUbicacion.getSelectedItem() + ")");
         System.out.println("  Título válido: " + tituloValido + " (" + txtTitulo.getText().trim() + ")");
         System.out.println("  Descripción válida: " + descripcionValida + " (" + txtDescripcion.getText().trim() + ")");
+        System.out.println("  Tiene técnicos: " + hayTecnicos);
         
         return ubicacionValida && tituloValido && descripcionValida;
     }
@@ -515,14 +528,21 @@ public class CrearTicketMejoradoWindow extends JFrame {
         
         System.out.println("Equipos seleccionados: " + equiposSeleccionados.size());
         
+        // Obtener técnicos asignados
+        List<TicketAsignacion> asignaciones = selectorTecnicos.obtenerAsignaciones();
+        String resumenTecnicos = asignaciones.isEmpty() ? "Sin asignar" : 
+            asignaciones.stream()
+                .map(a -> a.getUsuarioNombre() != null ? a.getUsuarioNombre() : "Usuario ID: " + a.getUsuId())
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Sin asignar");
+        
         // Confirmación
         int respuesta = JOptionPane.showConfirmDialog(this,
             "¿Está seguro de crear " + equiposSeleccionados.size() + " tickets?\n\n" +
             "🏢 Ubicación: " + ((Ubicacion) cmbUbicacion.getSelectedItem()).getUbiNombre() + "\n" +
             "📋 Tipo: " + cmbTipo.getSelectedItem() + "\n" +
             "⚡ Prioridad: " + cmbPrioridad.getSelectedItem() + "\n" +
-            "👨‍💻 Técnico: " + (cmbTecnicoAsignado.getSelectedItem() != null ? 
-                        ((Usuario) cmbTecnicoAsignado.getSelectedItem()).getUsuNombre() : "Sin asignar"),
+            "👨‍💻 Técnicos: " + resumenTecnicos,
             "Confirmar Creación de Tickets",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE);
@@ -553,13 +573,33 @@ public class CrearTicketMejoradoWindow extends JFrame {
                     ticket.setTickFechaApertura(LocalDateTime.now());
                     ticket.setTickReportadoPor(usuarioActual.getUsuId());
                     
-                    if (cmbTecnicoAsignado.getSelectedItem() != null) {
-                        Usuario tecnico = (Usuario) cmbTecnicoAsignado.getSelectedItem();
-                        ticket.setTickAsignadoA(tecnico.getUsuId());
-                    }
+                    // Configurar fecha de vencimiento
+                    Date fechaVencimiento = (Date) spnFechaVencimiento.getValue();
+                    LocalDateTime fechaVencimientoLocal = fechaVencimiento.toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDateTime();
+                    ticket.setTickFechaVencimiento(fechaVencimientoLocal);
                     
+                    // Guardar el ticket primero
                     Ticket ticketGuardado = ticketDAO.guardar(ticket);
                     System.out.println("Ticket creado con ID: " + ticketGuardado.getTickId());
+                    
+                    // Asignar múltiples técnicos si hay alguno seleccionado
+                    List<TicketAsignacion> asignacionesTicket = selectorTecnicos.obtenerAsignaciones();
+                    if (!asignacionesTicket.isEmpty()) {
+                        // Actualizar el ID del ticket en las asignaciones
+                        for (TicketAsignacion asignacion : asignacionesTicket) {
+                            asignacion.setTickId(ticketGuardado.getTickId());
+                        }
+                        
+                        // Guardar asignaciones
+                        boolean asignado = asignacionDAO.asignarTecnicos(ticketGuardado.getTickId(), asignacionesTicket);
+                        if (asignado) {
+                            System.out.println("Técnicos asignados correctamente al ticket " + ticketGuardado.getTickId());
+                        } else {
+                            System.err.println("Error al asignar técnicos al ticket " + ticketGuardado.getTickId());
+                        }
+                    }
                     
                     ticketsCreados++;
                 } catch (Exception e) {

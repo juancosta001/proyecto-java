@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class Activo {
     
     public enum Estado {
-        Operativo, En_Mantenimiento, Fuera_Servicio, Trasladado
+        Operativo, En_Mantenimiento, Fuera_Servicio, Trasladado, En_Servicio_Externo
     }
     
     private int actId;
