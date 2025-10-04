@@ -12,8 +12,10 @@ com\ypacarai\cooperativa\activos\view\SolicitudMantenimientoTercerizadoWindow$2.
 com\ypacarai\cooperativa\activos\view\MantenimientoPanel$6.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$ProgresoCellRenderer.class
 com\ypacarai\cooperativa\activos\view\LoginWindowNew$3.class
+TestLoginDirectoTecnico.class
 com\ypacarai\cooperativa\activos\model\Ubicacion$TipoUbicacion.class
 com\ypacarai\cooperativa\activos\model\DashboardData.class
+com\ypacarai\cooperativa\activos\view\MantenimientoTecnicoPanel$2.class
 com\ypacarai\cooperativa\activos\model\Alerta$TipoAlerta.class
 com\ypacarai\cooperativa\activos\view\ConfiguracionPanel$3.class
 com\ypacarai\cooperativa\activos\view\SolicitudMantenimientoTercerizadoWindow.class
@@ -34,6 +36,7 @@ com\ypacarai\cooperativa\activos\view\MainWindowNew.class
 com\ypacarai\cooperativa\activos\view\CrearUsuarioWindow$3.class
 TestConfiguracionCompleto.class
 com\ypacarai\cooperativa\activos\service\TicketService$1.class
+com\ypacarai\cooperativa\activos\view\MantenimientoTecnicoPanel$1.class
 com\ypacarai\cooperativa\activos\view\SolicitudMantenimientoTercerizadoWindow$1.class
 com\ypacarai\cooperativa\activos\model\Mantenimiento.class
 com\ypacarai\cooperativa\activos\view\ProveedorServicioWindow$2.class
@@ -62,6 +65,7 @@ com\ypacarai\cooperativa\activos\view\CrearUsuarioWindow$8.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$7.class
 com\ypacarai\cooperativa\activos\model\Usuario.class
 com\ypacarai\cooperativa\activos\dao\MantenimientoTercerizadoDAO.class
+TestInterfazRoles.class
 com\ypacarai\cooperativa\activos\model\Activo$Estado.class
 com\ypacarai\cooperativa\activos\view\CrearUsuarioWindow$5.class
 com\ypacarai\cooperativa\activos\dao\ConfiguracionAlertaDAO.class
@@ -156,10 +160,12 @@ com\ypacarai\cooperativa\activos\SistemaReportesCompleto.class
 com\ypacarai\cooperativa\activos\model\MantenimientoTercerizado$EstadoMantenimiento.class
 com\ypacarai\cooperativa\activos\view\ConfiguracionPanel$1.class
 com\ypacarai\cooperativa\activos\SistemaPruebaCompleto.class
+TestPanelIntegradoTecnico.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$8.class
 TestDashboard.class
 com\ypacarai\cooperativa\activos\view\CrearUsuarioWindow$2.class
 com\ypacarai\cooperativa\activos\view\SistemaTicketsPanel$2.class
+com\ypacarai\cooperativa\activos\view\MantenimientoTecnicoPanel.class
 com\ypacarai\cooperativa\activos\view\SolicitudMantenimientoTercerizadoWindow$ActivoComboBoxRenderer.class
 com\ypacarai\cooperativa\activos\service\UsuarioService.class
 com\ypacarai\cooperativa\activos\view\MainWindowNew$8.class
@@ -181,6 +187,7 @@ com\ypacarai\cooperativa\activos\view\ProveedorServicioWindow.class
 com\ypacarai\cooperativa\activos\dao\UbicacionDAO.class
 com\ypacarai\cooperativa\activos\util\ExportadorReportes.class
 com\ypacarai\cooperativa\activos\view\LoginWindowNew.class
+TestMantenimientoDirecto.class
 com\ypacarai\cooperativa\activos\dao\ReportesDAO.class
 com\ypacarai\cooperativa\activos\model\ConfiguracionSistema.class
 com\ypacarai\cooperativa\activos\dao\ConfiguracionMantenimientoDAO.class
@@ -196,6 +203,7 @@ com\ypacarai\cooperativa\activos\view\MantenimientoTecnicoWindow$4.class
 com\ypacarai\cooperativa\activos\model\FichaReporte$EstadoFicha.class
 com\ypacarai\cooperativa\activos\view\PruebaControlAcceso$1.class
 com\ypacarai\cooperativa\activos\TestComparacionMetodos.class
+TestRolesSimple.class
 com\ypacarai\cooperativa\activos\view\LoginWindowNew$6.class
 com\ypacarai\cooperativa\activos\model\ReporteTraslados.class
 com\ypacarai\cooperativa\activos\view\InventarioActivosPanel$1.class

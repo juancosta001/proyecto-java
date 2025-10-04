@@ -920,53 +920,10 @@ public class MainWindowNew extends JFrame {
     }
     
     private void createPanelMantenimiento() {
-        // Verificar si el usuario es técnico para mostrar interfaz simplificada
+        // Verificar si el usuario es técnico para mostrar interfaz integrada
         if (usuarioActual != null && usuarioActual.getUsuRol() == Usuario.Rol.Tecnico) {
-            // Para técnicos, crear un panel con botón directo a su ventana específica
-            panelMantenimiento = createWhitePanel("🔧 Sistema de Mantenimiento - Vista Técnico");
-            
-            JPanel contenedorTecnico = new JPanel(new BorderLayout(20, 20));
-            contenedorTecnico.setBorder(new EmptyBorder(40, 40, 40, 40));
-            
-            // Mensaje de bienvenida
-            JLabel lblBienvenida = new JLabel("<html><center>" +
-                "¡Bienvenido " + usuarioActual.getUsuNombre() + "!<br><br>" +
-                "Accede rápidamente a tus mantenimientos asignados usando el botón a continuación." +
-                "</center></html>");
-            lblBienvenida.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-            lblBienvenida.setHorizontalAlignment(SwingConstants.CENTER);
-            lblBienvenida.setForeground(new Color(80, 80, 80));
-            
-            // Botón para abrir ventana de técnico
-            JButton btnMisMantenimientos = new JButton("🔧 Abrir Mis Mantenimientos");
-            btnMisMantenimientos.setFont(new Font("Segoe UI", Font.BOLD, 18));
-            btnMisMantenimientos.setBackground(COLOR_VERDE_COOPERATIVA);
-            btnMisMantenimientos.setForeground(Color.WHITE);
-            btnMisMantenimientos.setBorder(new EmptyBorder(15, 30, 15, 30));
-            btnMisMantenimientos.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            btnMisMantenimientos.setFocusPainted(false);
-            
-            btnMisMantenimientos.addActionListener(e -> {
-                try {
-                    MantenimientoTecnicoWindow ventanaTecnico = new MantenimientoTecnicoWindow(this, usuarioActual);
-                    ventanaTecnico.setVisible(true);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this,
-                        "Error al abrir la ventana de mantenimientos: " + ex.getMessage(),
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-                }
-            });
-            
-            // Panel para centrar el botón
-            JPanel panelBoton = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            panelBoton.setOpaque(false);
-            panelBoton.add(btnMisMantenimientos);
-            
-            contenedorTecnico.add(lblBienvenida, BorderLayout.NORTH);
-            contenedorTecnico.add(panelBoton, BorderLayout.CENTER);
-            
-            panelMantenimiento.add(contenedorTecnico, BorderLayout.CENTER);
+            // Para técnicos, usar el panel integrado directamente
+            panelMantenimiento = new MantenimientoTecnicoPanel(usuarioActual);
         } else {
             // Para otros roles, crear un panel con pestañas para diferentes tipos de mantenimiento
             panelMantenimiento = createWhitePanel("🔧 Sistema de Mantenimiento");

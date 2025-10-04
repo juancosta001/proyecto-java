@@ -580,24 +580,38 @@ public class CrearTicketMejoradoWindow extends JFrame {
                         .toLocalDateTime();
                     ticket.setTickFechaVencimiento(fechaVencimientoLocal);
                     
+                    // Configurar asignación principal si hay técnicos seleccionados
+                    List<TicketAsignacion> asignacionesTicket = selectorTecnicos.obtenerAsignaciones();
+                    if (!asignacionesTicket.isEmpty()) {
+                        // Establecer el primer técnico como asignado principal en tick_asignado_a
+                        Integer primerTecnico = asignacionesTicket.get(0).getUsuId();
+                        ticket.setTickAsignadoA(primerTecnico);
+                        System.out.println("Estableciendo técnico principal: " + primerTecnico + " para ticket de equipo " + equipo.getActNumeroActivo());
+                    }
+                    
                     // Guardar el ticket primero
                     Ticket ticketGuardado = ticketDAO.guardar(ticket);
-                    System.out.println("Ticket creado con ID: " + ticketGuardado.getTickId());
+                    System.out.println("Ticket creado con ID: " + ticketGuardado.getTickId() + 
+                                     ", asignado a técnico: " + ticketGuardado.getTickAsignadoA());
                     
                     // Asignar múltiples técnicos si hay alguno seleccionado
-                    List<TicketAsignacion> asignacionesTicket = selectorTecnicos.obtenerAsignaciones();
                     if (!asignacionesTicket.isEmpty()) {
                         // Actualizar el ID del ticket en las asignaciones
                         for (TicketAsignacion asignacion : asignacionesTicket) {
                             asignacion.setTickId(ticketGuardado.getTickId());
                         }
                         
-                        // Guardar asignaciones
+                        // Guardar asignaciones múltiples
                         boolean asignado = asignacionDAO.asignarTecnicos(ticketGuardado.getTickId(), asignacionesTicket);
                         if (asignado) {
-                            System.out.println("Técnicos asignados correctamente al ticket " + ticketGuardado.getTickId());
+                            System.out.println("Técnicos múltiples asignados correctamente al ticket " + ticketGuardado.getTickId());
+                            System.out.println("  - Técnicos asignados: " + 
+                                asignacionesTicket.stream()
+                                    .map(a -> "ID:" + a.getUsuId() + "(" + a.getUsuarioNombre() + ")")
+                                    .reduce((a, b) -> a + ", " + b)
+                                    .orElse("Ninguno"));
                         } else {
-                            System.err.println("Error al asignar técnicos al ticket " + ticketGuardado.getTickId());
+                            System.err.println("Error al asignar técnicos múltiples al ticket " + ticketGuardado.getTickId());
                         }
                     }
                     
