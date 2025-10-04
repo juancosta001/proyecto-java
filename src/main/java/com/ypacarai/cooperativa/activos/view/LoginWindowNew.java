@@ -277,8 +277,7 @@ public class LoginWindowNew extends JFrame {
         btnSalir.addActionListener(e -> System.exit(0));
         
         // Valores por defecto para pruebas (remover en producción)
-        txtUsuario.setText("admin");
-        txtPassword.setText("admin");
+     
     }
     
     private void performLogin() {

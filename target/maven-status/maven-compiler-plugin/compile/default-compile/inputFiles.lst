@@ -28,8 +28,10 @@ C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-y
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\dao\ReportesDAOSimple.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\DiagnosticoMantenimientoTercerizado.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\ReporteTraslados.java
+C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\TestRolesSimple.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\Usuario.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\view\ProveedorServicioWindow.java
+C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\TestInterfazRoles.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\view\RegistroUsuarios.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\FiltrosReporte.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\dao\ActivoDAO.java
@@ -39,6 +41,7 @@ C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-y
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\service\ConfiguracionService.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\util\TransactionManager.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\view\PruebaControlAcceso.java
+C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\TestLoginDirectoTecnico.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\FichaReporte.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\DebugUsuarios.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\ConfiguracionMantenimiento.java
@@ -61,6 +64,7 @@ C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-y
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\dao\UsuarioDAO.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\test\TestCrearUsuario.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\view\InventarioActivosPanel.java
+C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\TestMantenimientoDirecto.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\PruebaComplementaTickets.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\service\ReporteService.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\TestRetiroEntregaCompleto.java
@@ -104,6 +108,7 @@ C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-y
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\service\UsuarioService.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\service\UsuarioServiceNew.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\service\MantenimientoPreventivoService.java
+C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\TestPanelIntegradoTecnico.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\CorregirAutoIncrement.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\ReporteCompleto.java
 C:\Users\jose4\OneDrive\Desktop\coope\sistema-activos-ypacarai\sistema-activos-ypacarai\src\main\java\com\ypacarai\cooperativa\activos\model\ReporteMantenimientos.java

@@ -293,15 +293,12 @@ public class MainWindowNew extends JFrame {
         for (String[] item : menuItems) {
             String modulo = item[2];
             
-            // Verificar permisos antes de mostrar el botón
+            // Solo mostrar botones a los que el usuario tiene acceso
             if (ControlAccesoRoles.puedeAccederModulo(usuarioActual, modulo)) {
                 JButton btnMenu = createMenuButton(item[0] + " " + item[1], modulo);
                 panel.add(btnMenu);
-            } else {
-                // Opcional: Agregar botón deshabilitado con tooltip explicativo
-                JButton btnDeshabilitado = createMenuButtonDisabled(item[0] + " " + item[1], modulo);
-                panel.add(btnDeshabilitado);
             }
+            // No agregar nada si no tiene permisos - el botón simplemente no aparece
         }
         
         panel.add(Box.createVerticalGlue());
