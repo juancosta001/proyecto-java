@@ -1,15 +1,17 @@
 package com.ypacarai.cooperativa.activos.service;
 
-import com.ypacarai.cooperativa.activos.dao.MantenimientoTercerizadoDAO;
-import com.ypacarai.cooperativa.activos.dao.ProveedorServicioDAO;
-import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
-import com.ypacarai.cooperativa.activos.model.MantenimientoTercerizado;
-import com.ypacarai.cooperativa.activos.model.ProveedorServicio;
-import com.ypacarai.cooperativa.activos.model.Activo;
-import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
+import com.ypacarai.cooperativa.activos.dao.MantenimientoTercerizadoDAO;
+import com.ypacarai.cooperativa.activos.dao.ProveedorServicioDAO;
+import com.ypacarai.cooperativa.activos.model.Activo;
+import com.ypacarai.cooperativa.activos.model.MantenimientoTercerizado;
+import com.ypacarai.cooperativa.activos.model.ProveedorServicio;
 
 /**
  * Servicio para la gestión de Mantenimiento Técnico Tercerizado
@@ -290,7 +292,7 @@ public class MantenimientoTercerizadoService {
         List<MantenimientoTercerizado> finalizados = obtenerMantenimientosPorEstado(MantenimientoTercerizado.EstadoMantenimiento.Finalizado);
         return finalizados.stream()
                          .filter(MantenimientoTercerizado::estaEnGarantia)
-                         .toList();
+                         .collect(Collectors.toList());
     }
     
     // ==================== MÉTODOS PRIVADOS DE VALIDACIÓN ====================
