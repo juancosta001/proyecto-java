@@ -1,16 +1,27 @@
 package com.ypacarai.cooperativa.activos.service;
 
-import com.ypacarai.cooperativa.activos.dao.ReportesDAOSimple;
-import com.ypacarai.cooperativa.activos.model.*;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
-import java.io.*;
-import java.text.NumberFormat;
-import java.math.BigDecimal;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import com.ypacarai.cooperativa.activos.dao.ReportesDAOSimple;
+import com.ypacarai.cooperativa.activos.model.ConsultaDinamica;
+import com.ypacarai.cooperativa.activos.model.DashboardData;
+import com.ypacarai.cooperativa.activos.model.FiltrosReporte;
+import com.ypacarai.cooperativa.activos.model.ReporteCompleto;
+import com.ypacarai.cooperativa.activos.model.ReporteEstadoActivos;
+import com.ypacarai.cooperativa.activos.model.ReporteFallas;
+import com.ypacarai.cooperativa.activos.model.ReporteMantenimientos;
+import com.ypacarai.cooperativa.activos.model.ReporteTraslados;
+import com.ypacarai.cooperativa.activos.model.ResultadoConsultaDinamica;
 
 /**
  * Servicio completo para generación y gestión de reportes
@@ -254,6 +265,13 @@ public class ReporteService {
         Map<String, Object> stats = new HashMap<>();
         
         if (datos.isEmpty()) {
+            stats.put("totalActivos", 0);
+            stats.put("proximosMantenimiento", 0);
+            stats.put("mantenimientoVencido", 0);
+            stats.put("porcentajeProximoMantenimiento", 0.0);
+            stats.put("porcentajeMantenimientoVencido", 0.0);
+            stats.put("distribucionPorTipo", new HashMap<String, Integer>());
+            stats.put("distribucionPorUbicacion", new HashMap<String, Integer>());
             return stats;
         }
         
@@ -290,6 +308,13 @@ public class ReporteService {
         Map<String, Object> stats = new HashMap<>();
         
         if (datos.isEmpty()) {
+            // Valores por defecto cuando no hay datos
+            stats.put("totalMantenimientos", 0);
+            stats.put("tiempoPromedioResolucion", 0.0);
+            stats.put("costoTotal", 0.0);
+            stats.put("costoPromedioPorMantenimiento", 0.0);
+            stats.put("distribucionPorTipo", new HashMap<String, Integer>());
+            stats.put("rankingTecnicos", new HashMap<String, Integer>());
             return stats;
         }
         
@@ -300,7 +325,7 @@ public class ReporteService {
         stats.put("totalMantenimientos", totalMantenimientos);
         stats.put("tiempoPromedioResolucion", tiempoPromedio);
         stats.put("costoTotal", costoTotal);
-        stats.put("costoPromedioPorMantenimiento", totalMantenimientos > 0 ? costoTotal / totalMantenimientos : 0);
+        stats.put("costoPromedioPorMantenimiento", totalMantenimientos > 0 ? costoTotal / totalMantenimientos : 0.0);
         
         // Análisis por tipo de mantenimiento
         Map<String, Integer> mantenimientosPorTipo = datos.stream()
@@ -326,6 +351,10 @@ public class ReporteService {
         Map<String, Object> stats = new HashMap<>();
         
         if (datos.isEmpty()) {
+            stats.put("totalFallas", 0);
+            stats.put("efectividadPromedioReparacion", 0.0);
+            stats.put("fallasPorTipo", new HashMap<String, Integer>());
+            stats.put("tiposActivosConMasFallas", new HashMap<String, Integer>());
             return stats;
         }
         
@@ -365,6 +394,10 @@ public class ReporteService {
         Map<String, Object> stats = new HashMap<>();
         
         if (datos.isEmpty()) {
+            stats.put("totalTraslados", 0);
+            stats.put("diasPromedioEnUbicacion", 0.0);
+            stats.put("distribucionPorEstado", new HashMap<String, Long>());
+            stats.put("ubicacionesOrigen", new HashMap<String, Long>());
             return stats;
         }
         
@@ -427,9 +460,13 @@ public class ReporteService {
         resumen.append("DISTRIBUCIÓN POR TIPO DE ACTIVO:\n");
         @SuppressWarnings("unchecked")
         Map<String, Integer> distribucion = (Map<String, Integer>) stats.get("distribucionPorTipo");
-        distribucion.entrySet().stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-            .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+        if (distribucion != null && !distribucion.isEmpty()) {
+            distribucion.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+        } else {
+            resumen.append("Sin datos disponibles.\n");
+        }
         
         return resumen.toString();
     }
@@ -442,17 +479,26 @@ public class ReporteService {
         resumen.append("Total de Mantenimientos: ").append(stats.get("totalMantenimientos")).append("\n");
         resumen.append("Tiempo Promedio de Resolución: ")
                .append(String.format("%.1f", (Double)stats.get("tiempoPromedioResolucion"))).append(" horas\n");
-        resumen.append("Costo Total: ").append(formatoMoneda.format(stats.get("costoTotal"))).append("\n");
+        
+        // Convertir explícitamente a Double antes de formatear
+        Double costoTotal = (Double) stats.get("costoTotal");
+        Double costoPromedio = (Double) stats.get("costoPromedioPorMantenimiento");
+        
+        resumen.append("Costo Total: ").append(formatoMoneda.format(costoTotal != null ? costoTotal : 0.0)).append("\n");
         resumen.append("Costo Promedio por Mantenimiento: ")
-               .append(formatoMoneda.format(stats.get("costoPromedioPorMantenimiento"))).append("\n\n");
+               .append(formatoMoneda.format(costoPromedio != null ? costoPromedio : 0.0)).append("\n\n");
         
         resumen.append("RANKING DE TÉCNICOS MÁS PRODUCTIVOS:\n");
         @SuppressWarnings("unchecked")
         Map<String, Integer> ranking = (Map<String, Integer>) stats.get("rankingTecnicos");
-        ranking.entrySet().stream()
-            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-            .limit(5)
-            .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append(" mantenimientos\n"));
+        if (ranking != null && !ranking.isEmpty()) {
+            ranking.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .limit(5)
+                .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append(" mantenimientos\n"));
+        } else {
+            resumen.append("Sin datos disponibles.\n");
+        }
         
         return resumen.toString();
     }
@@ -463,15 +509,22 @@ public class ReporteService {
         resumen.append("===========================\n\n");
         
         resumen.append("Total de Fallas Registradas: ").append(stats.get("totalFallas")).append("\n");
+        
+        // Manejar posible valor null para efectividad
+        Double efectividad = (Double) stats.get("efectividadPromedioReparacion");
         resumen.append("Efectividad Promedio de Reparación: ")
-               .append(String.format("%.1f", (Double)stats.get("efectividadPromedioReparacion"))).append("%\n\n");
+               .append(String.format("%.1f", efectividad != null ? efectividad : 0.0)).append("%\n\n");
         
         resumen.append("ACTIVOS MÁS PROBLEMÁTICOS:\n");
         @SuppressWarnings("unchecked")
         Map<String, Integer> problematicos = (Map<String, Integer>) stats.get("activosMasProblematicos");
-        problematicos.entrySet().stream()
-            .limit(5)
-            .forEach(entry -> resumen.append("- Activo ").append(entry.getKey()).append(": ").append(entry.getValue()).append(" fallas\n"));
+        if (problematicos != null && !problematicos.isEmpty()) {
+            problematicos.entrySet().stream()
+                .limit(5)
+                .forEach(entry -> resumen.append("- Activo ").append(entry.getKey()).append(": ").append(entry.getValue()).append(" fallas\n"));
+        } else {
+            resumen.append("Sin datos disponibles.\n");
+        }
         
         return resumen.toString();
     }
@@ -482,15 +535,22 @@ public class ReporteService {
         resumen.append("==============================\n\n");
         
         resumen.append("Total de Traslados: ").append(stats.get("totalTraslados")).append("\n");
+        
+        // Manejar posible valor null
+        Double diasPromedio = (Double) stats.get("diasPromedioEnUbicacion");
         resumen.append("Días Promedio en Ubicación: ")
-               .append(String.format("%.1f", (Double)stats.get("diasPromedioEnUbicacion"))).append(" días\n\n");
+               .append(String.format("%.1f", diasPromedio != null ? diasPromedio : 0.0)).append(" días\n\n");
         
         resumen.append("DISTRIBUCIÓN POR ESTADO:\n");
         @SuppressWarnings("unchecked")
         Map<String, Long> estados = (Map<String, Long>) stats.get("distribucionPorEstado");
-        estados.entrySet().stream()
-            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-            .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+        if (estados != null && !estados.isEmpty()) {
+            estados.entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .forEach(entry -> resumen.append("- ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+        } else {
+            resumen.append("Sin datos disponibles.\n");
+        }
         
         return resumen.toString();
     }

@@ -439,7 +439,7 @@ public class GestionUsuariosService {
     /**
      * Genera hash SHA-256 de contraseña
      */
-    private String hashPassword(String password) {
+    public String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = md.digest(password.getBytes());

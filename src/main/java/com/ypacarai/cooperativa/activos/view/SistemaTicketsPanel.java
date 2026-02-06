@@ -4,14 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,14 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -43,7 +41,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -51,11 +48,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.MaskFormatter;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 
-import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
 import com.ypacarai.cooperativa.activos.dao.TicketDAO;
 import com.ypacarai.cooperativa.activos.dao.UsuarioDAO;
 import com.ypacarai.cooperativa.activos.model.Activo;
@@ -120,6 +113,11 @@ public class SistemaTicketsPanel extends JPanel {
     // Variables de control
     private Ticket ticketEnEdicion;
     private JLabel lblTituloFormulario;
+    
+    // Etiquetas de estadísticas
+    private JLabel lblPendientes;
+    private JLabel lblCriticos;
+    private JLabel lblVencidos;
     
     // Servicios y DAOs
     private ActivoService activoService;
@@ -237,25 +235,28 @@ public class SistemaTicketsPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         panel.setOpaque(false);
         
-        // Estadísticas se actualizarán dinámicamente
-        JLabel lblPendientes = new JLabel("Pendientes: 0");
+        // Crear etiquetas de estadísticas como campos de instancia
+        lblPendientes = new JLabel("Pendientes: 0");
         lblPendientes.setForeground(Color.WHITE);
         lblPendientes.setFont(new Font("Segoe UI", Font.BOLD, 11));
         
-        JLabel lblCriticos = new JLabel("Críticos: 0");
+        lblCriticos = new JLabel("Críticos: 0");
         lblCriticos.setForeground(Color.YELLOW);
         lblCriticos.setFont(new Font("Segoe UI", Font.BOLD, 11));
         
-        JLabel lblVencidos = new JLabel("Vencidos: 0");
+        lblVencidos = new JLabel("Vencidos: 0");
         lblVencidos.setForeground(Color.RED);
         lblVencidos.setFont(new Font("Segoe UI", Font.BOLD, 11));
         
+        JLabel separador1 = new JLabel(" | ");
+        separador1.setForeground(Color.WHITE);
+        JLabel separador2 = new JLabel(" | ");
+        separador2.setForeground(Color.WHITE);
+        
         panel.add(lblPendientes);
-        panel.add(new JLabel(" | "));
-        lblPendientes.setForeground(Color.WHITE);
+        panel.add(separador1);
         panel.add(lblCriticos);
-        panel.add(new JLabel(" | "));
-        lblCriticos.setForeground(Color.WHITE);
+        panel.add(separador2);
         panel.add(lblVencidos);
         
         return panel;
@@ -926,8 +927,48 @@ public class SistemaTicketsPanel extends JPanel {
     }
     
     private void actualizarEstadisticas() {
-        // TODO: Implementar actualización de estadísticas en el panel de título
-        // Contar tickets por estado, prioridad, etc.
+        try {
+            List<Ticket> todosTickets = ticketService.obtenerTodosLosTickets();
+            LocalDateTime ahora = LocalDateTime.now();
+            
+            // Contar tickets pendientes (Abiertos + En Proceso)
+            long pendientes = todosTickets.stream()
+                .filter(t -> t.getTickEstado() == Ticket.Estado.Abierto || 
+                           t.getTickEstado() == Ticket.Estado.En_Proceso)
+                .count();
+            
+            // Contar tickets críticos (prioridad crítica y no cerrados)
+            long criticos = todosTickets.stream()
+                .filter(t -> t.getTickPrioridad() == Ticket.Prioridad.Critica &&
+                           (t.getTickEstado() == Ticket.Estado.Abierto || 
+                            t.getTickEstado() == Ticket.Estado.En_Proceso))
+                .count();
+            
+            // Contar tickets vencidos (fecha vencimiento pasada y no cerrados)
+            long vencidos = todosTickets.stream()
+                .filter(t -> t.getTickFechaVencimiento() != null &&
+                           t.getTickFechaVencimiento().isBefore(ahora) &&
+                           (t.getTickEstado() == Ticket.Estado.Abierto || 
+                            t.getTickEstado() == Ticket.Estado.En_Proceso))
+                .count();
+            
+            // Actualizar las etiquetas en el hilo de eventos de Swing
+            SwingUtilities.invokeLater(() -> {
+                if (lblPendientes != null) {
+                    lblPendientes.setText("Pendientes: " + pendientes);
+                }
+                if (lblCriticos != null) {
+                    lblCriticos.setText("Críticos: " + criticos);
+                }
+                if (lblVencidos != null) {
+                    lblVencidos.setText("Vencidos: " + vencidos);
+                }
+            });
+            
+        } catch (Exception e) {
+            System.err.println("Error al actualizar estadísticas: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void aplicarFiltros() {

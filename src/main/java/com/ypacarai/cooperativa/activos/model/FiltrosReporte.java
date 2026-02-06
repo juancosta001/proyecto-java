@@ -9,6 +9,7 @@ import java.util.Map;
 public class FiltrosReporte {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
+    private String tipoReporte;
     private String tipoActivo;
     private String ubicacion;
     private String ubicacionOrigen;
@@ -33,6 +34,9 @@ public class FiltrosReporte {
     
     public LocalDate getFechaFin() { return fechaFin; }
     public void setFechaFin(LocalDate fechaFin) { this.fechaFin = fechaFin; }
+    
+    public String getTipoReporte() { return tipoReporte; }
+    public void setTipoReporte(String tipoReporte) { this.tipoReporte = tipoReporte; }
     
     public String getTipoActivo() { return tipoActivo; }
     public void setTipoActivo(String tipoActivo) { this.tipoActivo = tipoActivo; }
@@ -89,11 +93,22 @@ public class FiltrosReporte {
     
     /**
      * Valida si los filtros de fecha son válidos
+     * Si las fechas son null, se considera válido (sin filtro de fecha)
+     * Si solo una fecha está presente, se considera inválido
+     * Si ambas están presentes, valida que fechaInicio <= fechaFin
      */
     public boolean validarFechas() {
+        // Si ambas son null, es válido (sin filtro)
+        if (fechaInicio == null && fechaFin == null) {
+            return true;
+        }
+        
+        // Si solo una está presente, es inválido
         if (fechaInicio == null || fechaFin == null) {
             return false;
         }
+        
+        // Si ambas están presentes, validar orden
         return !fechaInicio.isAfter(fechaFin);
     }
     

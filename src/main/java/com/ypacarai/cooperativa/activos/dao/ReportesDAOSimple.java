@@ -61,15 +61,17 @@ public class ReportesDAOSimple {
            .append("FROM ACTIVO a ")
            .append("INNER JOIN TIPO_ACTIVO ta ON a.tip_act_id = ta.tip_act_id ")
            .append("INNER JOIN UBICACION u ON a.act_ubicacion_actual = u.ubi_id ")
-           .append("WHERE 1=1 ");
+           .append("WHERE a.act_estado != 'Inactivo' ");  // Solo activos que no están inactivos
         
         List<Object> parametros = new ArrayList<>();
         
-        if (fechaInicio != null && fechaFin != null) {
-            sql.append("AND DATE(a.creado_en) BETWEEN ? AND ? ");
-            parametros.add(java.sql.Date.valueOf(fechaInicio));
-            parametros.add(java.sql.Date.valueOf(fechaFin));
-        }
+        // Para Estado de Activos, NO filtrar por fecha de creación
+        // Queremos ver el estado ACTUAL de todos los activos
+        // if (fechaInicio != null && fechaFin != null) {
+        //     sql.append("AND DATE(a.creado_en) BETWEEN ? AND ? ");
+        //     parametros.add(java.sql.Date.valueOf(fechaInicio));
+        //     parametros.add(java.sql.Date.valueOf(fechaFin));
+        // }
         
         if (tipoActivo != null && !tipoActivo.trim().isEmpty()) {
             sql.append("AND ta.nombre = ? ");
@@ -285,7 +287,7 @@ public class ReportesDAOSimple {
            .append("        THEN TIMESTAMPDIFF(MINUTE, m.mant_fecha_inicio, m.mant_fecha_fin) / 60.0 ")
            .append("        ELSE NULL END) as tiempo_promedio_horas, ")
            .append("    u.usu_nombre as tecnico_nombre, ")
-           .append("    SUM(m.mant_costo) as costo_total, ")
+           .append("    0.0 as costo_total, ")
            .append("    COUNT(CASE WHEN m.mant_estado = 'Completado' THEN 1 END) as completados, ")
            .append("    COUNT(CASE WHEN m.mant_estado = 'En_Proceso' THEN 1 END) as en_proceso, ")
            .append("    COUNT(CASE WHEN m.mant_estado = 'Programado' THEN 1 END) as programados, ")
@@ -477,21 +479,20 @@ public class ReportesDAOSimple {
            .append("    uo.ubi_nombre as ubicacion_origen, ")
            .append("    ud.ubi_nombre as ubicacion_destino, ")
            .append("    t.tras_fecha_devolucion_prog, ")
-           .append("    t.tras_fecha_real, ")
+           .append("    t.tras_fecha_retorno, ")
            .append("    t.tras_estado, ")
            .append("    t.tras_motivo, ")
-           .append("    u.usu_nombre as responsable, ")
-           .append("    CASE WHEN t.tras_fecha_real IS NOT NULL ")
-           .append("        THEN TIMESTAMPDIFF(DAY, t.tras_fecha_devolucion_prog, t.tras_fecha_retorno) ")
-           .append("        ELSE TIMESTAMPDIFF(DAY, t.tras_fecha_devolucion_prog, CURRENT_DATE) ")
-           .append("    END as dias_diferencia, ")
-           .append("    COUNT(*) OVER (PARTITION BY a.act_id) as total_traslados_activo ")
+           .append("    t.tras_responsable_recibo as responsable, ")
+           .append("    CASE WHEN t.tras_fecha_retorno IS NOT NULL ")
+           .append("        THEN TIMESTAMPDIFF(DAY, t.tras_fecha_salida, t.tras_fecha_retorno) ")
+           .append("        ELSE TIMESTAMPDIFF(DAY, t.tras_fecha_salida, CURRENT_DATE) ")
+           .append("    END as dias_en_ubicacion, ")
+           .append("    (SELECT COUNT(*) FROM TRASLADO WHERE act_id = a.act_id) as total_traslados_activo ")
            .append("FROM TRASLADO t ")
            .append("INNER JOIN ACTIVO a ON t.act_id = a.act_id ")
            .append("INNER JOIN TIPO_ACTIVO ta ON a.tip_act_id = ta.tip_act_id ")
            .append("INNER JOIN UBICACION uo ON t.tras_ubicacion_origen = uo.ubi_id ")
            .append("INNER JOIN UBICACION ud ON t.tras_ubicacion_destino = ud.ubi_id ")
-           .append("LEFT JOIN USUARIO u ON t.tras_responsable = u.usu_id ")
            .append("WHERE 1=1 ");
         
         List<Object> parametros = new ArrayList<>();
@@ -534,22 +535,22 @@ public class ReportesDAOSimple {
                         reporte.setFechaSalida(fechaProgramada.toLocalDate());
                     }
                     
-                    Timestamp fechaReal = rs.getTimestamp("tras_fecha_real");
-                    if (fechaReal != null) {
-                        reporte.setFechaRetorno(fechaReal.toLocalDateTime().toLocalDate());
+                    Timestamp fechaRetorno = rs.getTimestamp("tras_fecha_retorno");
+                    if (fechaRetorno != null) {
+                        reporte.setFechaRetorno(fechaRetorno.toLocalDateTime().toLocalDate());
                     }
                     
                     reporte.setEstadoTraslado(rs.getString("tras_estado"));
                     reporte.setMotivoTraslado(rs.getString("tras_motivo"));
                     
-                    // Usar responsable para envío y recibo
+                    // Usar responsable para recibo
                     String responsable = rs.getString("responsable");
                     reporte.setResponsableEnvio(responsable);
                     reporte.setResponsableRecibo(responsable);
                     
                     // Calcular días en ubicación
-                    int diasDiferencia = rs.getInt("dias_diferencia");
-                    reporte.setDiasEnUbicacion(Math.abs(diasDiferencia));
+                    int diasEnUbicacion = rs.getInt("dias_en_ubicacion");
+                    reporte.setDiasEnUbicacion(Math.abs(diasEnUbicacion));
                     
                     reporte.setTotalTrasladosActivo(rs.getInt("total_traslados_activo"));
                     
@@ -703,14 +704,13 @@ public class ReportesDAOSimple {
                 "(SELECT COUNT(*) FROM ACTIVO WHERE creado_en BETWEEN ? AND ?) as activos_registrados, " +
                 "(SELECT COUNT(*) FROM TICKET WHERE tick_fecha_apertura BETWEEN ? AND ?) as tickets_creados, " +
                 "(SELECT COUNT(*) FROM MANTENIMIENTO WHERE mant_fecha_inicio BETWEEN ? AND ?) as mantenimientos_realizados, " +
-                "(SELECT COUNT(*) FROM TRASLADO WHERE tras_fecha_devolucion_prog BETWEEN ? AND ?) as traslados_programados, " +
-                "(SELECT SUM(mant_costo) FROM MANTENIMIENTO WHERE mant_fecha_inicio BETWEEN ? AND ?) as costo_total_mantenimiento";
+                "(SELECT COUNT(*) FROM TRASLADO WHERE tras_fecha_devolucion_prog BETWEEN ? AND ?) as traslados_programados";
             
             try (PreparedStatement stmt = conn.prepareStatement(sqlResumen)) {
                 java.sql.Date inicio = java.sql.Date.valueOf(fechaInicio);
                 java.sql.Date fin = java.sql.Date.valueOf(fechaFin);
                 
-                for (int i = 1; i <= 10; i += 2) {
+                for (int i = 1; i <= 8; i += 2) {
                     stmt.setDate(i, inicio);
                     stmt.setDate(i + 1, fin);
                 }
@@ -721,7 +721,7 @@ public class ReportesDAOSimple {
                         estadisticas.put("ticketsCreados", rs.getInt("tickets_creados"));
                         estadisticas.put("mantenimientosRealizados", rs.getInt("mantenimientos_realizados"));
                         estadisticas.put("trasladosProgramados", rs.getInt("traslados_programados"));
-                        estadisticas.put("costoTotalMantenimiento", rs.getBigDecimal("costo_total_mantenimiento"));
+                        estadisticas.put("costoTotalMantenimiento", 0.0); // Sin datos de costo disponibles
                     }
                 }
             }

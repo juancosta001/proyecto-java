@@ -127,7 +127,8 @@ public class ConfiguracionSistemaDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapResultSetToConfiguracion(rs);
+                    ConfiguracionSistema config = mapResultSetToConfiguracion(rs);
+                    return config; // Puede ser null si la configuración es obsoleta
                 }
             }
             
@@ -154,7 +155,10 @@ public class ConfiguracionSistemaDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    configuraciones.add(mapResultSetToConfiguracion(rs));
+                    ConfiguracionSistema config = mapResultSetToConfiguracion(rs);
+                    if (config != null) { // Ignorar configuraciones obsoletas
+                        configuraciones.add(config);
+                    }
                 }
             }
             
@@ -179,7 +183,10 @@ public class ConfiguracionSistemaDAO {
              ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
-                configuraciones.add(mapResultSetToConfiguracion(rs));
+                ConfiguracionSistema config = mapResultSetToConfiguracion(rs);
+                if (config != null) { // Ignorar configuraciones obsoletas
+                    configuraciones.add(config);
+                }
             }
             
         } catch (SQLException e) {
@@ -324,26 +331,9 @@ public class ConfiguracionSistemaDAO {
             ConfiguracionSistema.TipoParametro.NUMERO, 
             ConfiguracionSistema.CategoriaParametro.MANTENIMIENTO, true);
         
-        // Configuraciones de Horarios
-        crearConfiguracionSiNoExiste("horarios.inicio_laboral", "08:00", 
-            "Hora de inicio de la jornada laboral", ConfiguracionSistema.TipoParametro.TIEMPO, 
-            ConfiguracionSistema.CategoriaParametro.HORARIOS, true);
-        
-        crearConfiguracionSiNoExiste("horarios.fin_laboral", "17:00", 
-            "Hora de fin de la jornada laboral", ConfiguracionSistema.TipoParametro.TIEMPO, 
-            ConfiguracionSistema.CategoriaParametro.HORARIOS, true);
-        
         // Configuraciones de Alertas
         crearConfiguracionSiNoExiste("alertas.sonido_habilitado", "false", 
             "Habilitar sonidos para alertas críticas", ConfiguracionSistema.TipoParametro.BOOLEAN, 
-            ConfiguracionSistema.CategoriaParametro.ALERTAS, false);
-        
-        crearConfiguracionSiNoExiste("alertas.color_critica", "#dc3545", 
-            "Color para alertas críticas", ConfiguracionSistema.TipoParametro.COLOR, 
-            ConfiguracionSistema.CategoriaParametro.ALERTAS, false);
-        
-        crearConfiguracionSiNoExiste("alertas.color_advertencia", "#ffc107", 
-            "Color para alertas de advertencia", ConfiguracionSistema.TipoParametro.COLOR, 
             ConfiguracionSistema.CategoriaParametro.ALERTAS, false);
         
         crearConfiguracionSiNoExiste("alertas.frecuencia_revision", "diaria", 
@@ -368,6 +358,28 @@ public class ConfiguracionSistemaDAO {
             ConfiguracionSistema.CategoriaParametro.EMAIL, true);
         
         System.out.println("Configuraciones por defecto inicializadas correctamente");
+    }
+    
+    /**
+     * Limpia configuraciones obsoletas que ya no se utilizan en el sistema
+     */
+    public void limpiarConfiguracionesObsoletas() {
+        System.out.println("Limpiando configuraciones obsoletas...");
+        
+        // Configuraciones de horarios laborales (no utilizadas)
+        eliminarConfiguracion("horarios.inicio_laboral");
+        eliminarConfiguracion("horarios.fin_laboral");
+        eliminarConfiguracion("horarios.sabado_laboral");
+        
+        // Configuraciones de colores no utilizadas
+        eliminarConfiguracion("alertas.color_critica");
+        eliminarConfiguracion("alertas.color_advertencia");
+        
+        // Configuraciones de sistema duplicadas o innecesarias
+        eliminarConfiguracion("sistema.descripcion");
+        eliminarConfiguracion("sistema.logo_path");
+        
+        System.out.println("Limpieza de configuraciones obsoletas completada");
     }
     
     /**
@@ -419,8 +431,21 @@ public class ConfiguracionSistemaDAO {
         config.setConfClave(rs.getString("conf_clave"));
         config.setConfValor(rs.getString("conf_valor"));
         config.setConfDescripcion(rs.getString("conf_descripcion"));
-        config.setConfTipo(ConfiguracionSistema.TipoParametro.valueOf(rs.getString("conf_tipo")));
-        config.setConfCategoria(ConfiguracionSistema.CategoriaParametro.valueOf(rs.getString("conf_categoria")));
+        
+        try {
+            config.setConfTipo(ConfiguracionSistema.TipoParametro.valueOf(rs.getString("conf_tipo")));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Tipo de parámetro obsoleto encontrado: " + rs.getString("conf_tipo"));
+            return null; // Ignorar configuración con tipo obsoleto
+        }
+        
+        try {
+            config.setConfCategoria(ConfiguracionSistema.CategoriaParametro.valueOf(rs.getString("conf_categoria")));
+        } catch (IllegalArgumentException e) {
+            System.err.println("Categoría obsoleta encontrada: " + rs.getString("conf_categoria") + " - Ignorando configuración");
+            return null; // Ignorar configuración con categoría obsoleta
+        }
+        
         config.setConfValorDefecto(rs.getString("conf_valor_defecto"));
         config.setConfObligatoria(rs.getBoolean("conf_obligatoria"));
         config.setConfActiva(rs.getBoolean("conf_activa"));

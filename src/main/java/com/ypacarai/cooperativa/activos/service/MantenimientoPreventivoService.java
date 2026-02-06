@@ -294,6 +294,13 @@ public class MantenimientoPreventivoService {
     }
     
     /**
+     * Obtiene una alerta específica por su ID
+     */
+    public AlertaMantenimiento obtenerAlertaPorId(Integer alertaId) {
+        return alertaDAO.findById(alertaId);
+    }
+    
+    /**
      * Desactiva una alerta
      */
     public boolean desactivarAlerta(Integer alertaId) {

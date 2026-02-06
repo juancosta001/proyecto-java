@@ -41,7 +41,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -80,8 +79,6 @@ public class ConfiguracionPanel extends JPanel {
     private JTabbedPane tabbedPane;
     private JPanel panelParametrosGenerales;
     private JPanel panelConfiguracionAlertas;
-    private JPanel panelHorariosLaboral;
-    private JPanel panelEstadisticas;
     
     // Tablas
     private JTable tablaConfiguraciones;
@@ -118,14 +115,10 @@ public class ConfiguracionPanel extends JPanel {
         // Crear pestañas
         createPanelParametrosGenerales();
         createPanelConfiguracionAlertas();
-        createPanelHorariosLaboral();
-        createPanelEstadisticas();
         
         // Agregar pestañas al tabbedPane
         tabbedPane.addTab("📋 Parámetros Generales", panelParametrosGenerales);
         tabbedPane.addTab("🔔 Configuración de Alertas", panelConfiguracionAlertas);
-        tabbedPane.addTab("🕐 Horarios Laborales", panelHorariosLaboral);
-        tabbedPane.addTab("📊 Estadísticas", panelEstadisticas);
         
         add(tabbedPane, BorderLayout.CENTER);
         
@@ -220,12 +213,11 @@ public class ConfiguracionPanel extends JPanel {
         JPanel panelOpcionesAlertas = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelOpcionesAlertas.setBackground(COLOR_BLANCO);
         
-        JButton btnNuevaAlerta = createStyledButton("🔔 Nueva Alerta", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
         JButton btnEditarAlerta = createStyledButton("✏️ Editar Alerta", COLOR_AZUL_INFO, COLOR_BLANCO);
         JButton btnProbarAlerta = createStyledButton("🧪 Probar Alerta", COLOR_NARANJA_WARNING, COLOR_BLANCO);
         JButton btnRestaurarDefecto = createStyledButton("🔄 Restaurar por Defecto", COLOR_GRIS_TEXTO, COLOR_BLANCO);
         
-        panelOpcionesAlertas.add(btnNuevaAlerta);
+        panelOpcionesAlertas.add(btnEditarAlerta);
         panelOpcionesAlertas.add(btnEditarAlerta);
         panelOpcionesAlertas.add(btnProbarAlerta);
         panelOpcionesAlertas.add(btnRestaurarDefecto);
@@ -270,7 +262,6 @@ public class ConfiguracionPanel extends JPanel {
         panelConfiguracionAlertas.add(panelDetalleAlerta, BorderLayout.SOUTH);
         
         // Event listeners
-        btnNuevaAlerta.addActionListener(e -> mostrarDialogoNuevaAlerta());
         btnEditarAlerta.addActionListener(e -> editarAlertaSeleccionada());
         btnProbarAlerta.addActionListener(e -> probarAlertaSeleccionada());
         btnRestaurarDefecto.addActionListener(e -> restaurarAlertasPorDefecto());
@@ -314,141 +305,7 @@ public class ConfiguracionPanel extends JPanel {
         
         return panel;
     }
-    
-    private void createPanelHorariosLaboral() {
-        panelHorariosLaboral = new JPanel(new BorderLayout(10, 10));
-        panelHorariosLaboral.setBackground(COLOR_BLANCO);
-        panelHorariosLaboral.setBorder(new EmptyBorder(15, 15, 15, 15));
-        
-        // Panel central con configuración de horarios
-        JPanel panelCentral = new JPanel(new GridBagLayout());
-        panelCentral.setBackground(COLOR_BLANCO);
-        panelCentral.setBorder(BorderFactory.createTitledBorder("Configuración de Horarios Laborales"));
-        
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.anchor = GridBagConstraints.WEST;
-        
-        // Horario de inicio
-        gbc.gridx = 0; gbc.gridy = 0;
-        panelCentral.add(new JLabel("🌅 Hora de inicio laboral:"), gbc);
-        
-        JSpinner spinnerHoraInicio = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor editorInicio = new JSpinner.DateEditor(spinnerHoraInicio, "HH:mm");
-        spinnerHoraInicio.setEditor(editorInicio);
-        gbc.gridx = 1;
-        panelCentral.add(spinnerHoraInicio, gbc);
-        
-        // Horario de fin
-        gbc.gridx = 0; gbc.gridy = 1;
-        panelCentral.add(new JLabel("🌅 Hora de fin laboral:"), gbc);
-        
-        JSpinner spinnerHoraFin = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor editorFin = new JSpinner.DateEditor(spinnerHoraFin, "HH:mm");
-        spinnerHoraFin.setEditor(editorFin);
-        gbc.gridx = 1;
-        panelCentral.add(spinnerHoraFin, gbc);
-        
-        // Días laborales
-        gbc.gridx = 0; gbc.gridy = 2;
-        panelCentral.add(new JLabel("📅 Días laborales:"), gbc);
-        
-        JPanel panelDias = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelDias.setBackground(COLOR_BLANCO);
-        String[] diasSemana = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
-        JCheckBox[] checkBoxesDias = new JCheckBox[7];
-        
-        for (int i = 0; i < diasSemana.length; i++) {
-            checkBoxesDias[i] = new JCheckBox(diasSemana[i]);
-            checkBoxesDias[i].setBackground(COLOR_BLANCO);
-            if (i < 5) checkBoxesDias[i].setSelected(true); // Lunes a Viernes por defecto
-            panelDias.add(checkBoxesDias[i]);
-        }
-        gbc.gridx = 1; gbc.gridwidth = 2;
-        panelCentral.add(panelDias, gbc);
-        
-        // Botones de acción
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 3; gbc.fill = GridBagConstraints.HORIZONTAL;
-        JPanel panelBotones = new JPanel(new FlowLayout());
-        panelBotones.setBackground(COLOR_BLANCO);
-        
-        JButton btnGuardarHorarios = createStyledButton("💾 Guardar Horarios", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
-        JButton btnRestaurarHorarios = createStyledButton("🔄 Restaurar por Defecto", COLOR_GRIS_TEXTO, COLOR_BLANCO);
-        
-        panelBotones.add(btnGuardarHorarios);
-        panelBotones.add(btnRestaurarHorarios);
-        panelCentral.add(panelBotones, gbc);
-        
-        panelHorariosLaboral.add(panelCentral, BorderLayout.CENTER);
-        
-        // Panel de información sobre SLA
-        JPanel panelSLA = createSLAInformationPanel();
-        panelHorariosLaboral.add(panelSLA, BorderLayout.SOUTH);
-        
-        // Cargar valores actuales
-        cargarHorariosActuales(spinnerHoraInicio, spinnerHoraFin);
-        
-        // Event listeners
-        btnGuardarHorarios.addActionListener(e -> 
-            guardarHorariosLaborales(spinnerHoraInicio, spinnerHoraFin, checkBoxesDias));
-        btnRestaurarHorarios.addActionListener(e -> 
-            restaurarHorariosDefecto(spinnerHoraInicio, spinnerHoraFin, checkBoxesDias));
-    }
-    
-    private void createPanelEstadisticas() {
-        panelEstadisticas = new JPanel(new BorderLayout(10, 10));
-        panelEstadisticas.setBackground(COLOR_BLANCO);
-        panelEstadisticas.setBorder(new EmptyBorder(15, 15, 15, 15));
-        
-        // Panel superior con KPIs
-        JPanel panelKPIs = new JPanel(new GridLayout(2, 4, 15, 15));
-        panelKPIs.setBackground(COLOR_BLANCO);
-        panelKPIs.setBorder(BorderFactory.createTitledBorder("Estadísticas de Configuración"));
-        
-        panelEstadisticas.add(panelKPIs, BorderLayout.NORTH);
-        
-        // Panel central con gráficos o información adicional
-        JPanel panelGraficos = new JPanel(new BorderLayout());
-        panelGraficos.setBackground(COLOR_BLANCO);
-        panelGraficos.setBorder(BorderFactory.createTitledBorder("Resumen de Sistema"));
-        
-        JTextArea textAreaResumen = new JTextArea(15, 50);
-        textAreaResumen.setEditable(false);
-        textAreaResumen.setFont(new Font("Consolas", Font.PLAIN, 12));
-        textAreaResumen.setBorder(new EmptyBorder(10, 10, 10, 10));
-        textAreaResumen.setBackground(COLOR_GRIS_CLARO);
-        
-        JScrollPane scrollResumen = new JScrollPane(textAreaResumen);
-        panelGraficos.add(scrollResumen, BorderLayout.CENTER);
-        
-        panelEstadisticas.add(panelGraficos, BorderLayout.CENTER);
-        
-        // Panel de botones para exportar/importar
-        JPanel panelExportacion = new JPanel(new FlowLayout());
-        panelExportacion.setBackground(COLOR_BLANCO);
-        
-        JButton btnExportar = createStyledButton("📤 Exportar Configuraciones", COLOR_AZUL_INFO, COLOR_BLANCO);
-        JButton btnImportar = createStyledButton("📥 Importar Configuraciones", COLOR_NARANJA_WARNING, COLOR_BLANCO);
-        JButton btnValidar = createStyledButton("✅ Validar Configuraciones", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
-        JButton btnActualizar = createStyledButton("🔄 Actualizar Estadísticas", COLOR_GRIS_TEXTO, COLOR_BLANCO);
-        
-        panelExportacion.add(btnExportar);
-        panelExportacion.add(btnImportar);
-        panelExportacion.add(btnValidar);
-        panelExportacion.add(btnActualizar);
-        
-        panelEstadisticas.add(panelExportacion, BorderLayout.SOUTH);
-        
-        // Cargar estadísticas
-        cargarEstadisticas(panelKPIs, textAreaResumen);
-        
-        // Event listeners
-        btnActualizar.addActionListener(e -> cargarEstadisticas(panelKPIs, textAreaResumen));
-        btnValidar.addActionListener(e -> validarTodasConfiguraciones(textAreaResumen));
-        btnExportar.addActionListener(e -> exportarConfiguraciones());
-        btnImportar.addActionListener(e -> importarConfiguraciones());
-    }
-    
+
     private void createPanelBotonesAccion() {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         panelBotones.setBackground(COLOR_BLANCO);
@@ -664,8 +521,45 @@ public class ConfiguracionPanel extends JPanel {
     // Estos métodos necesitan ser implementados con la lógica completa
     
     private void filtrarConfiguracionesPorCategoria(int selectedIndex) {
-        // TODO: Implementar filtrado por categoría
-        System.out.println("Filtrar por categoría: " + selectedIndex);
+        if (selectedIndex == 0) {
+            // Mostrar todas las configuraciones
+            cargarConfiguracionesGenerales();
+        } else {
+            // Filtrar por categoría específica
+            ConfiguracionSistema.CategoriaParametro[] categorias = ConfiguracionSistema.CategoriaParametro.values();
+            if (selectedIndex <= categorias.length) {
+                ConfiguracionSistema.CategoriaParametro categoriaSeleccionada = categorias[selectedIndex - 1];
+                filtrarTablaConfiguracionPorCategoria(categoriaSeleccionada);
+            }
+        }
+    }
+    
+    private void filtrarTablaConfiguracionPorCategoria(ConfiguracionSistema.CategoriaParametro categoria) {
+        try {
+            List<ConfiguracionSistema> configuraciones = configuracionService.obtenerConfiguracionesPorCategoria(categoria);
+            
+            // Limpiar tabla
+            modeloConfiguraciones.setRowCount(0);
+            
+            // Cargar datos filtrados
+            for (ConfiguracionSistema config : configuraciones) {
+                Object[] row = {
+                    config.getConfCategoria().getDescripcion(),
+                    config.getConfClave(),
+                    config.getConfValor(),
+                    config.getConfDescripcion(),
+                    config.getConfTipo().name(),
+                    config.getConfObligatoria() ? "Sí" : "No"
+                };
+                modeloConfiguraciones.addRow(row);
+            }
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al filtrar configuraciones: " + e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void mostrarDialogoNuevaConfiguracion() {
@@ -1057,14 +951,6 @@ public class ConfiguracionPanel extends JPanel {
                 "Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
-    }
-    
-    private void mostrarDialogoNuevaAlerta() {
-        JOptionPane.showMessageDialog(this, 
-            "Las alertas del sistema están predefinidas y no se pueden crear nuevas.\n" +
-            "Puede editar las configuraciones de las alertas existentes.", 
-            "Información", 
-            JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void editarAlertaSeleccionada() {

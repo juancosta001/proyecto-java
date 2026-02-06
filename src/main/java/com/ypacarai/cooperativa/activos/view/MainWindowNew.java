@@ -33,7 +33,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -957,179 +956,14 @@ public class MainWindowNew extends JFrame {
     }
     
     private void createPanelUsuarios() {
-        panelUsuarios = createWhitePanel("👥 Gestión de Usuarios y Permisos");
+        // Crear el panel completo de usuarios usando nuestro nuevo SistemaUsuariosPanel
+        panelUsuarios = new JPanel(new BorderLayout());
+        panelUsuarios.setBackground(Color.WHITE);
         
-        // Panel principal
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        // Crear el sistema de usuarios con funcionalidad completa
+        SistemaUsuariosPanel sistemaUsuarios = new SistemaUsuariosPanel(usuarioActual);
+        panelUsuarios.add(sistemaUsuarios, BorderLayout.CENTER);
         
-        // Título y descripción
-        JLabel lblTitulo = new JLabel("Sistema de Gestión de Usuarios");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblTitulo.setForeground(COLOR_VERDE_COOPERATIVA);
-        
-        JLabel lblDescripcion = new JLabel("<html><i>Control completo de usuarios con roles jerárquicos y validación de permisos</i></html>");
-        lblDescripcion.setFont(new Font("Segoe UI", Font.ITALIC, 14));
-        lblDescripcion.setForeground(COLOR_GRIS_TEXTO);
-        
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.add(lblTitulo, BorderLayout.NORTH);
-        headerPanel.add(lblDescripcion, BorderLayout.SOUTH);
-        headerPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
-        
-        // Panel de botones principales
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
-        
-        JButton btnCrearUsuario = createStyledButton("➕ Crear Usuario", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO, true);
-        JButton btnListarUsuarios = createStyledButton("� Listar Usuarios", COLOR_AZUL_INFO, COLOR_BLANCO, false);
-        JButton btnValidarPermisos = createStyledButton("🔐 Validar Permisos", COLOR_NARANJA_WARNING, COLOR_BLANCO, false);
-        JButton btnGestionRoles = createStyledButton("👑 Gestión de Roles", COLOR_ROJO_DANGER, COLOR_BLANCO, false);
-        
-        buttonPanel.add(btnCrearUsuario);
-        buttonPanel.add(btnListarUsuarios);
-        buttonPanel.add(btnValidarPermisos);
-        buttonPanel.add(btnGestionRoles);
-        
-        // Panel de información de roles
-        JPanel rolesPanel = new JPanel(new GridLayout(3, 1, 10, 10));
-        rolesPanel.setBorder(BorderFactory.createTitledBorder("🏆 Jerarquía de Roles"));
-        
-        JPanel rolJefe = createRoleInfoPanel("👑 Jefe de Informática", 
-            "Control total del sistema • Gestión de usuarios • Acceso a todos los reportes", COLOR_ROJO_DANGER);
-        JPanel rolTecnico = createRoleInfoPanel("🔧 Técnico", 
-            "Gestión de activos • Tickets • Mantenimientos • Reportes básicos", COLOR_NARANJA_WARNING);
-        JPanel rolConsulta = createRoleInfoPanel("👁️ Consulta", 
-            "Solo lectura • Visualización de activos • Reportes limitados", COLOR_AZUL_INFO);
-        
-        rolesPanel.add(rolJefe);
-        rolesPanel.add(rolTecnico);
-        rolesPanel.add(rolConsulta);
-        
-        // Panel de demostración
-        JPanel demoPanel = new JPanel(new BorderLayout());
-        demoPanel.setBorder(BorderFactory.createTitledBorder("💡 Demostración del Sistema"));
-        
-        JTextArea txtDemo = new JTextArea(12, 50);
-        txtDemo.setEditable(false);
-        txtDemo.setFont(new Font("Consolas", Font.PLAIN, 12));
-        txtDemo.setBorder(new EmptyBorder(10, 10, 10, 10));
-        
-        JScrollPane scrollDemo = new JScrollPane(txtDemo);
-        demoPanel.add(scrollDemo, BorderLayout.CENTER);
-        
-        // Action Listeners
-        btnCrearUsuario.addActionListener(e -> {
-            // Verificar permisos antes de abrir la ventana
-            if (!ControlAccesoRoles.tienePermiso(usuarioActual, ControlAccesoRoles.Permiso.CREAR_USUARIOS)) {
-                JOptionPane.showMessageDialog(
-                    this,
-                    ControlAccesoRoles.mensajeAccesoDenegado(usuarioActual, "crear usuarios"),
-                    "Acceso Denegado",
-                    JOptionPane.WARNING_MESSAGE
-                );
-                return;
-            }
-            
-            // Abrir ventana de creación de usuario
-            CrearUsuarioWindow crearUsuarioWindow = new CrearUsuarioWindow(this, usuarioActual);
-            crearUsuarioWindow.setVisible(true);
-        });
-        
-        btnListarUsuarios.addActionListener(e -> {
-            txtDemo.setText("📋 Consultando usuarios del sistema...\n\n");
-            
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    List<Usuario> usuarios = gestionUsuariosService.obtenerTodosLosUsuarios();
-                    txtDemo.append("👥 Total de usuarios: " + usuarios.size() + "\n\n");
-                    
-                    // Agrupar por rol
-                    long jefes = usuarios.stream().filter(u -> u.getUsuRol() == Usuario.Rol.Jefe_Informatica).count();
-                    long tecnicos = usuarios.stream().filter(u -> u.getUsuRol() == Usuario.Rol.Tecnico).count();
-                    long consultas = usuarios.stream().filter(u -> u.getUsuRol() == Usuario.Rol.Consulta).count();
-                    
-                    txtDemo.append("📊 Distribución por roles:\n");
-                    txtDemo.append("👑 Jefes de Informática: " + jefes + "\n");
-                    txtDemo.append("🔧 Técnicos: " + tecnicos + "\n");
-                    txtDemo.append("👁️  Consulta: " + consultas + "\n\n");
-                    
-                    txtDemo.append("📝 Últimos usuarios registrados:\n");
-                    usuarios.stream().limit(5).forEach(usuario -> {
-                        txtDemo.append("• " + usuario.getUsuNombre() + " (" + usuario.getUsuRol() + ") - " + 
-                                     usuario.getUsuEmail() + "\n");
-                    });
-                    
-                } catch (Exception ex) {
-                    txtDemo.append("❌ Error al listar usuarios: " + ex.getMessage() + "\n");
-                }
-            });
-        });
-        
-        btnValidarPermisos.addActionListener(e -> {
-            txtDemo.setText("🔐 Validando sistema de permisos...\n\n");
-            
-            SwingUtilities.invokeLater(() -> {
-                try {
-                    txtDemo.append("🔍 Verificando permisos del usuario actual:\n");
-                    txtDemo.append("👤 Usuario: " + usuarioActual.getUsuNombre() + "\n");
-                    txtDemo.append("👑 Rol: " + usuarioActual.getUsuRol() + "\n\n");
-                    
-                    // Validar operaciones específicas usando el enum correcto
-                    boolean puedeGestionarUsuarios = gestionUsuariosService.tienePermiso(usuarioActual, 
-                        GestionUsuariosService.PermisoSistema.GESTIONAR_USUARIOS);
-                    boolean puedeEliminarActivos = gestionUsuariosService.tienePermiso(usuarioActual, 
-                        GestionUsuariosService.PermisoSistema.ELIMINAR_ACTIVO);
-                    boolean puedeModificarActivos = gestionUsuariosService.tienePermiso(usuarioActual, 
-                        GestionUsuariosService.PermisoSistema.MODIFICAR_ACTIVO);
-                    boolean puedeVerReportes = gestionUsuariosService.tienePermiso(usuarioActual, 
-                        GestionUsuariosService.PermisoSistema.VER_REPORTES_COMPLETOS);
-                    
-                    txtDemo.append("🔒 Permisos verificados:\n");
-                    txtDemo.append("👥 Gestionar usuarios: " + (puedeGestionarUsuarios ? "✅ Permitido" : "❌ Denegado") + "\n");
-                    txtDemo.append("🗑️ Eliminar activos: " + (puedeEliminarActivos ? "✅ Permitido" : "❌ Denegado") + "\n");
-                    txtDemo.append("✏️ Modificar activos: " + (puedeModificarActivos ? "✅ Permitido" : "❌ Denegado") + "\n");
-                    txtDemo.append("📊 Ver reportes completos: " + (puedeVerReportes ? "✅ Permitido" : "❌ Denegado") + "\n");
-                    
-                } catch (Exception ex) {
-                    txtDemo.append("❌ Error al validar permisos: " + ex.getMessage() + "\n");
-                }
-            });
-        });
-        
-        btnGestionRoles.addActionListener(e -> {
-            txtDemo.setText("👑 Sistema de Gestión de Roles\n\n");
-            txtDemo.append("🏗️ Jerarquía de permisos implementada:\n\n");
-            
-            txtDemo.append("👑 JEFE DE INFORMÁTICA:\n");
-            txtDemo.append("   • Control total del sistema\n");
-            txtDemo.append("   • Crear, modificar y eliminar usuarios\n");
-            txtDemo.append("   • Acceso a todos los reportes\n");
-            txtDemo.append("   • Configuración del sistema\n");
-            txtDemo.append("   • Auditoría completa\n\n");
-            
-            txtDemo.append("🔧 TÉCNICO:\n");
-            txtDemo.append("   • Gestión completa de activos\n");
-            txtDemo.append("   • Crear y resolver tickets\n");
-            txtDemo.append("   • Programar mantenimientos\n");
-            txtDemo.append("   • Ver reportes básicos\n");
-            txtDemo.append("   • Consultar usuarios (solo lectura)\n\n");
-            
-            txtDemo.append("👁️ CONSULTA:\n");
-            txtDemo.append("   • Solo lectura en todo el sistema\n");
-            txtDemo.append("   • Ver activos sin modificar\n");
-            txtDemo.append("   • Reportes limitados\n");
-            txtDemo.append("   • Sin acceso a configuración\n\n");
-            
-            txtDemo.append("🔐 Todas las operaciones son validadas en tiempo real.\n");
-        });
-        
-        // Ensamblar el panel
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
-        mainPanel.add(rolesPanel, BorderLayout.EAST);
-        mainPanel.add(demoPanel, BorderLayout.SOUTH);
-        
-        panelUsuarios.add(mainPanel, BorderLayout.CENTER);
         panelContenido.add(panelUsuarios, "usuarios");
     }
     
@@ -1301,6 +1135,16 @@ public class MainWindowNew extends JFrame {
             CardLayout cardLayout = (CardLayout) panelContenido.getLayout();
             cardLayout.show(panelContenido, "dashboard");
             actualizarKPIs();
+        });
+    }
+    
+    /**
+     * Muestra el panel de reportes completos
+     */
+    public void mostrarPanelReportes() {
+        SwingUtilities.invokeLater(() -> {
+            CardLayout cardLayout = (CardLayout) panelContenido.getLayout();
+            cardLayout.show(panelContenido, "reportes");
         });
     }
     

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -188,6 +188,129 @@ public class EmailService {
         html.append("</div></body></html>");
         
         return html.toString();
+    }
+    
+    /**
+     * Envía notificación sobre tickets preventivos generados automáticamente
+     */
+    public boolean enviarNotificacionTicketsGenerados(int cantidadTickets) {
+        try {
+            LOGGER.log(Level.INFO, "Enviando notificación de {0} tickets preventivos generados", cantidadTickets);
+            
+            // Email por defecto para notificaciones
+            String destinatario = emailConfig.getProperty("mail.admin.email", "admin@cooperativaypacarai.coop.py");
+            
+            StringBuilder mensaje = new StringBuilder();
+            mensaje.append("<html><body>");
+            mensaje.append("<div style='font-family: Arial, sans-serif; max-width: 600px;'>");
+            mensaje.append("<h2 style='color: #2c7a3a; background-color: #e8f5e9; padding: 10px; border-left: 5px solid #2c7a3a;'>");
+            mensaje.append("🎫 Tickets Preventivos Generados Automáticamente</h2>");
+            
+            mensaje.append("<div style='background-color: #f8f9fa; padding: 20px; border: 1px solid #ddd; margin: 15px 0;'>");
+            mensaje.append("<p style='font-size: 16px;'>El sistema ha generado automáticamente ");
+            mensaje.append("<strong style='color: #2c7a3a; font-size: 20px;'>").append(cantidadTickets).append("</strong>");
+            mensaje.append(" ticket(s) de mantenimiento preventivo.</p>");
+            mensaje.append("</div>");
+            
+            mensaje.append("<div style='background-color: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0;'>");
+            mensaje.append("<h3 style='margin-top: 0; color: #1976d2;'>📋 Resumen</h3>");
+            mensaje.append("<ul style='margin: 10px 0;'>");
+            mensaje.append("<li>Se crearon tickets para activos sin mantenimiento preventivo reciente (últimos 6 meses)</li>");
+            mensaje.append("<li>Los tickets están asignados como \"Preventivo\" y priorizados según criticidad del activo</li>");
+            mensaje.append("<li>Revise el panel de tickets para asignar técnicos y programar las intervenciones</li>");
+            mensaje.append("</ul>");
+            mensaje.append("</div>");
+            
+            mensaje.append("<div style='background-color: #fff9c4; border: 1px solid #fbc02d; padding: 15px; margin: 15px 0;'>");
+            mensaje.append("<h4 style='margin-top: 0; color: #f57f17;'>⚠️ Acciones Recomendadas:</h4>");
+            mensaje.append("<ol style='margin: 10px 0;'>");
+            mensaje.append("<li>Revisar los nuevos tickets en el sistema</li>");
+            mensaje.append("<li>Asignar técnicos responsables</li>");
+            mensaje.append("<li>Establecer fechas de vencimiento apropiadas</li>");
+            mensaje.append("<li>Priorizar tickets críticos</li>");
+            mensaje.append("</ol>");
+            mensaje.append("</div>");
+            
+            mensaje.append("<div style='border-top: 2px solid #ddd; padding-top: 15px; margin-top: 20px; color: #666; font-size: 12px;'>");
+            mensaje.append("<p><strong>Sistema:</strong> Gestión de Activos - Cooperativa Ypacaraí LTDA</p>");
+            mensaje.append("<p><strong>Fecha:</strong> ").append(new Date().toString()).append("</p>");
+            mensaje.append("<p><em>Este es un mensaje automático del sistema. Por favor no responder.</em></p>");
+            mensaje.append("</div>");
+            mensaje.append("</div></body></html>");
+            
+            String asunto = "🎫 Sistema de Activos - " + cantidadTickets + " tickets preventivos generados";
+            
+            boolean enviado = enviarEmail(destinatario, asunto, mensaje.toString(), true);
+            
+            if (enviado) {
+                LOGGER.log(Level.INFO, "✅ Notificación de tickets enviada exitosamente a {0}", destinatario);
+            } else {
+                LOGGER.log(Level.WARNING, "⚠️ Fallo enviando notificación de tickets a {0}", destinatario);
+            }
+            
+            return enviado;
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error enviando notificación de tickets generados", e);
+            return false;
+        }
+    }
+    
+    /**
+     * Envía alerta de error del sistema a administradores
+     */
+    public boolean enviarAlertaError(String titulo, String descripcionError) {
+        try {
+            LOGGER.log(Level.WARNING, "Enviando alerta de error del sistema: {0}", titulo);
+            
+            // Email por defecto para alertas de sistema
+            String destinatario = emailConfig.getProperty("mail.admin.email", "admin@cooperativaypacarai.coop.py");
+            
+            StringBuilder mensajeError = new StringBuilder();
+            mensajeError.append("<html><body>");
+            mensajeError.append("<div style='font-family: Arial, sans-serif; max-width: 600px;'>");
+            mensajeError.append("<h2 style='color: #cc0000; background-color: #ffe6e6; padding: 10px; border-left: 5px solid #cc0000;'>");
+            mensajeError.append("🚨 ALERTA DEL SISTEMA - ").append(titulo).append("</h2>");
+            
+            mensajeError.append("<div style='background-color: #f8f8f8; padding: 15px; border: 1px solid #ddd; margin: 10px 0;'>");
+            mensajeError.append("<h3>Descripción del Error:</h3>");
+            mensajeError.append("<p style='font-family: monospace; background-color: white; padding: 10px; border: 1px solid #ccc;'>");
+            mensajeError.append(descripcionError.replace("\n", "<br>"));
+            mensajeError.append("</p>");
+            mensajeError.append("</div>");
+            
+            mensajeError.append("<div style='background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; margin: 10px 0;'>");
+            mensajeError.append("<h4>⚠️ Acción Requerida:</h4>");
+            mensajeError.append("<ul>");
+            mensajeError.append("<li>Revisar logs del sistema para más detalles</li>");
+            mensajeError.append("<li>Verificar conexiones de base de datos</li>");
+            mensajeError.append("<li>Contactar al equipo de IT si persiste el problema</li>");
+            mensajeError.append("</ul>");
+            mensajeError.append("</div>");
+            
+            mensajeError.append("<div style='border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px; color: #666; font-size: 12px;'>");
+            mensajeError.append("<p><strong>Sistema:</strong> Gestión de Activos - Cooperativa Ypacaraí LTDA</p>");
+            mensajeError.append("<p><strong>Hora:</strong> ").append(new Date().toString()).append("</p>");
+            mensajeError.append("<p>Este es un mensaje automático del sistema. Por favor no responder.</p>");
+            mensajeError.append("</div>");
+            mensajeError.append("</div></body></html>");
+            
+            String asuntoCompleto = "[SISTEMA ALERTA] " + titulo + " - " + new Date();
+            
+            boolean enviado = enviarEmail(destinatario, asuntoCompleto, mensajeError.toString(), true);
+            
+            if (enviado) {
+                LOGGER.log(Level.INFO, "✅ Alerta de error enviada exitosamente a {0}", destinatario);
+            } else {
+                LOGGER.log(Level.SEVERE, "❌ Fallo enviando alerta de error a {0}", destinatario);
+            }
+            
+            return enviado;
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error crítico enviando alerta de error del sistema", e);
+            return false;
+        }
     }
     
     /**

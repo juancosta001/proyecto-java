@@ -375,6 +375,34 @@ public class ConfiguracionService {
     }
     
     /**
+     * Fuerza la recarga de todas las configuraciones desde la base de datos
+     * Útil para el SchedulerService y otros procesos automáticos
+     */
+    public void recargarConfiguraciones() {
+        System.out.println("🔄 [SCHEDULER] Recargando configuraciones desde base de datos...");
+        invalidarCache();
+        actualizarCacheSiEsNecesario();
+        System.out.println("✅ [SCHEDULER] Configuraciones recargadas exitosamente");
+    }
+    
+    /**
+     * Limpia configuraciones obsoletas que ya no se utilizan en el sistema
+     */
+    public boolean limpiarConfiguracionesObsoletas() {
+        System.out.println("🧽 Iniciando limpieza de configuraciones obsoletas...");
+        
+        try {
+            configuracionSistemaDAO.limpiarConfiguracionesObsoletas();
+            invalidarCache(); // Forzar recarga del cache
+            System.out.println("✅ Limpieza de configuraciones completada exitosamente");
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Error durante la limpieza de configuraciones: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Inicializa configuraciones por defecto si es necesario
      */
     private void inicializarSiEsNecesario() {

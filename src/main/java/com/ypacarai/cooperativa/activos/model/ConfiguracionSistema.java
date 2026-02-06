@@ -34,7 +34,6 @@ public class ConfiguracionSistema {
         MANTENIMIENTO("Mantenimiento Preventivo"),
         ALERTAS("Sistema de Alertas"),
         EMAIL("Configuración de Correos"),
-        HORARIOS("Horarios Laborales"),
         NOTIFICACIONES("Notificaciones"),
         SEGURIDAD("Seguridad del Sistema"),
         REPORTES("Configuración de Reportes");

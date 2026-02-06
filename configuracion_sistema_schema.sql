@@ -181,7 +181,21 @@ INSERT IGNORE INTO configuracion_sistema (conf_clave, conf_valor, conf_descripci
 ('reportes.max_registros_excel', '10000', 'Máximo registros en exportación Excel', 'NUMERO', 'REPORTES', '10000', TRUE),
 ('reportes.formato_fecha_defecto', 'dd/MM/yyyy', 'Formato de fecha por defecto', 'TEXTO', 'REPORTES', 'dd/MM/yyyy', TRUE),
 ('reportes.incluir_logo', 'true', 'Incluir logo en reportes PDF', 'BOOLEAN', 'REPORTES', 'true', FALSE),
-('reportes.ruta_temporal', 'temp/reportes/', 'Ruta temporal para archivos de reporte', 'TEXTO', 'REPORTES', 'temp/reportes/', TRUE);
+('reportes.ruta_temporal', 'temp/reportes/', 'Ruta temporal para archivos de reporte', 'TEXTO', 'REPORTES', 'temp/reportes/', TRUE),
+
+-- Configuraciones del SchedulerService (Automatización)
+('scheduler.alertas_intervalo_horas', '8', 'Intervalo en horas para proceso automático de alertas', 'NUMERO', 'SCHEDULER', '8', TRUE),
+('scheduler.mantenimiento_intervalo_horas', '24', 'Intervalo en horas para mantenimiento preventivo automático', 'NUMERO', 'SCHEDULER', '24', TRUE),
+('scheduler.delay_inicial_minutos', '5', 'Minutos de espera antes del primer job automático', 'NUMERO', 'SCHEDULER', '5', TRUE),
+('scheduler.auto_inicio', 'true', 'Iniciar scheduler automáticamente al arrancar sistema', 'BOOLEAN', 'SCHEDULER', 'true', TRUE),
+('scheduler.max_hilos', '3', 'Número máximo de hilos para pool de ScheduledExecutor', 'NUMERO', 'SCHEDULER', '3', FALSE),
+
+-- Configuraciones del Servidor
+('servidor.puerto_app', '8080', 'Puerto de la aplicación principal', 'NUMERO', 'SERVIDOR', '8080', TRUE),
+('servidor.ambiente', 'produccion', 'Ambiente de ejecución (desarrollo/test/produccion)', 'TEXTO', 'SERVIDOR', 'produccion', TRUE),
+('servidor.log_level', 'INFO', 'Nivel de logging (DEBUG/INFO/WARN/ERROR)', 'TEXTO', 'SERVIDOR', 'INFO', TRUE),
+('servidor.backup_automatico', 'true', 'Habilitar backup automático diario', 'BOOLEAN', 'SERVIDOR', 'true', TRUE),
+('servidor.backup_hora', '02:00', 'Hora del backup automático diario (HH:mm)', 'TEXTO', 'SERVIDOR', '02:00', TRUE);
 
 -- Insertar configuraciones de alertas por defecto
 INSERT IGNORE INTO configuracion_alertas (tipo_alerta, activa, dias_anticipacion, frecuencia_revision, prioridad_por_defecto, color_indicador, sonido_habilitado, mensaje_personalizado, enviar_email, destinatarios_email, plantilla_email) VALUES
