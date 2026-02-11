@@ -13,7 +13,7 @@ public class TestConfiguracionScheduler {
     public static void main(String[] args) {
         // Configurar Look and Feel
         try {
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getCrossPlatformLookAndFeel());
+            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             System.out.println("⚠️ No se pudo aplicar Look and Feel del sistema");
         }

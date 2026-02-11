@@ -1101,18 +1101,8 @@ public class ReportesPanel extends JPanel {
             return;
         }
         
-        // Mostrar información sobre Excel y ofrecer CSV como alternativa
-        int opcion = JOptionPane.showConfirmDialog(this,
-            "La exportación directa a Excel requiere dependencias adicionales (Apache POI).\n" +
-            "¿Desea exportar a CSV en su lugar? Es compatible con Excel y otros programas.",
-            "Exportar Datos",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
-            
-        if (opcion == JOptionPane.YES_OPTION) {
-            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            ExportadorReportes.exportarCSV(reporteActual, parentFrame);
-        }
+        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        ExportadorReportes.exportarExcel(reporteActual, parentFrame);
     }
     
     private void exportarPDF() {
@@ -1121,18 +1111,8 @@ public class ReportesPanel extends JPanel {
             return;
         }
         
-        // Mostrar información sobre PDF y ofrecer texto como alternativa
-        int opcion = JOptionPane.showConfirmDialog(this,
-            "La exportación directa a PDF requiere dependencias adicionales (iText).\n" +
-            "¿Desea exportar a texto plano en su lugar?",
-            "Exportar Reporte",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
-            
-        if (opcion == JOptionPane.YES_OPTION) {
-            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            ExportadorReportes.exportarTexto(reporteActual, parentFrame);
-        }
+        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        ExportadorReportes.exportarPDF(reporteActual, parentFrame);
     }
     
     private void limpiarFiltros() {

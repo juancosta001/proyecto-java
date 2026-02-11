@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -20,10 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -235,6 +236,17 @@ public class InventarioActivosPanel extends JPanel {
         
         gbc.gridx = 3;
         cmbFiltroTipo = new JComboBox<>();
+        cmbFiltroTipo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todos los tipos --");
+                }
+                return this;
+            }
+        });
         cmbFiltroTipo.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroTipo, gbc);
 
@@ -245,6 +257,17 @@ public class InventarioActivosPanel extends JPanel {
         
         gbc.gridx = 1;
         cmbFiltroEstado = new JComboBox<>();
+        cmbFiltroEstado.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todos los estados --");
+                }
+                return this;
+            }
+        });
         cmbFiltroEstado.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroEstado, gbc);
 
@@ -254,6 +277,17 @@ public class InventarioActivosPanel extends JPanel {
         
         gbc.gridx = 3;
         cmbFiltroUbicacion = new JComboBox<>();
+        cmbFiltroUbicacion.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todas las ubicaciones --");
+                }
+                return this;
+            }
+        });
         cmbFiltroUbicacion.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroUbicacion, gbc);
 

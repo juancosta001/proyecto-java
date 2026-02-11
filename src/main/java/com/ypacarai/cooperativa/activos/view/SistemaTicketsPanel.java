@@ -293,6 +293,17 @@ public class SistemaTicketsPanel extends JPanel {
         
         gbc.gridx = 3;
         cmbFiltroEstado = new JComboBox<>();
+        cmbFiltroEstado.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todos los estados --");
+                }
+                return this;
+            }
+        });
         cmbFiltroEstado.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroEstado, gbc);
 
@@ -302,6 +313,17 @@ public class SistemaTicketsPanel extends JPanel {
         
         gbc.gridx = 1;
         cmbFiltroTipo = new JComboBox<>();
+        cmbFiltroTipo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todos los tipos --");
+                }
+                return this;
+            }
+        });
         cmbFiltroTipo.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroTipo, gbc);
 
@@ -310,6 +332,17 @@ public class SistemaTicketsPanel extends JPanel {
         
         gbc.gridx = 3;
         cmbFiltroPrioridad = new JComboBox<>();
+        cmbFiltroPrioridad.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todas las prioridades --");
+                }
+                return this;
+            }
+        });
         cmbFiltroPrioridad.addActionListener(e -> aplicarFiltros());
         panel.add(cmbFiltroPrioridad, gbc);
 

@@ -287,6 +287,22 @@ public class MantenimientoPreventivoService {
     }
     
     /**
+     * Limpia alertas antiguas del sistema
+     * @param diasRetencionAtendidas Días para conservar alertas atendidas/canceladas (ej: 90)
+     * @param diasRetencionEnviadas Días para conservar alertas enviadas sin atender (ej: 180)
+     * @return Cantidad de alertas eliminadas
+     */
+    public int limpiarAlertasAntiguas(int diasRetencionAtendidas, int diasRetencionEnviadas) {
+        System.out.println("Ejecutando limpieza de alertas antiguas...");
+        System.out.println("Criterios: Atendidas/Canceladas > " + diasRetencionAtendidas + " días, Enviadas > " + diasRetencionEnviadas + " días");
+        
+        int alertasEliminadas = alertaDAO.limpiarAlertasAntiguas(diasRetencionAtendidas, diasRetencionEnviadas);
+        
+        System.out.println("Limpieza completada. Total eliminadas: " + alertasEliminadas);
+        return alertasEliminadas;
+    }
+    
+    /**
      * Marca alerta como leída
      */
     public boolean marcarAlertaComoLeida(Integer alertaId) {

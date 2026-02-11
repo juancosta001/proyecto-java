@@ -19,7 +19,10 @@ public class ConfiguracionSchedulerPanel extends JPanel {
     
     // Campos de entrada
     private JTextField txtIntervaloAlertas;
-    private JTextField txtIntervaloMantenimiento; 
+    private JTextField txtIntervaloMantenimiento;
+    private JTextField txtIntervaloLimpieza;
+    private JTextField txtRetencionAtendidas;
+    private JTextField txtRetencionEnviadas;
     private JTextField txtDelayInicial;
     private JTextField txtMaxHilos;
     private JCheckBox chkAutoInicio;
@@ -66,8 +69,29 @@ public class ConfiguracionSchedulerPanel extends JPanel {
         txtIntervaloMantenimiento = new JTextField(10);
         panelConfiguracion.add(txtIntervaloMantenimiento, gbc);
         
-        // Delay inicial
+        // Intervalo de limpieza de alertas
         gbc.gridx = 0; gbc.gridy = 3;
+        panelConfiguracion.add(new JLabel("🧹 Intervalo limpieza alertas (horas):"), gbc);
+        gbc.gridx = 1;
+        txtIntervaloLimpieza = new JTextField(10);
+        panelConfiguracion.add(txtIntervaloLimpieza, gbc);
+        
+        // Retención alertas atendidas
+        gbc.gridx = 0; gbc.gridy = 4;
+        panelConfiguracion.add(new JLabel("📦 Retención alertas atendidas (días):"), gbc);
+        gbc.gridx = 1;
+        txtRetencionAtendidas = new JTextField(10);
+        panelConfiguracion.add(txtRetencionAtendidas, gbc);
+        
+        // Retención alertas enviadas
+        gbc.gridx = 0; gbc.gridy = 5;
+        panelConfiguracion.add(new JLabel("📮 Retención alertas enviadas (días):"), gbc);
+        gbc.gridx = 1;
+        txtRetencionEnviadas = new JTextField(10);
+        panelConfiguracion.add(txtRetencionEnviadas, gbc);
+        
+        // Delay inicial
+        gbc.gridx = 0; gbc.gridy = 6;
         panelConfiguracion.add(new JLabel("⏰ Delay inicial (minutos):"), gbc);
         gbc.gridx = 1;
         txtDelayInicial = new JTextField(10);
@@ -149,6 +173,9 @@ public class ConfiguracionSchedulerPanel extends JPanel {
         try {
             txtIntervaloAlertas.setText(configuracionService.obtenerValorConfiguracion("scheduler.alertas_intervalo_horas", "8"));
             txtIntervaloMantenimiento.setText(configuracionService.obtenerValorConfiguracion("scheduler.mantenimiento_intervalo_horas", "24"));
+            txtIntervaloLimpieza.setText(configuracionService.obtenerValorConfiguracion("scheduler.limpieza_intervalo_horas", "168"));
+            txtRetencionAtendidas.setText(configuracionService.obtenerValorConfiguracion("scheduler.retencion_alertas_atendidas_dias", "90"));
+            txtRetencionEnviadas.setText(configuracionService.obtenerValorConfiguracion("scheduler.retencion_alertas_enviadas_dias", "180"));
             txtDelayInicial.setText(configuracionService.obtenerValorConfiguracion("scheduler.delay_inicial_minutos", "5"));
             txtMaxHilos.setText(configuracionService.obtenerValorConfiguracion("scheduler.max_hilos", "3"));
             chkAutoInicio.setSelected(Boolean.parseBoolean(configuracionService.obtenerValorConfiguracion("scheduler.auto_inicio", "true")));
@@ -167,24 +194,31 @@ public class ConfiguracionSchedulerPanel extends JPanel {
             int intervalos[] = {
                 Integer.parseInt(txtIntervaloAlertas.getText().trim()),
                 Integer.parseInt(txtIntervaloMantenimiento.getText().trim()),
+                Integer.parseInt(txtIntervaloLimpieza.getText().trim()),
+                Integer.parseInt(txtRetencionAtendidas.getText().trim()),
+                Integer.parseInt(txtRetencionEnviadas.getText().trim()),
                 Integer.parseInt(txtDelayInicial.getText().trim()),
                 Integer.parseInt(txtMaxHilos.getText().trim())
             };
             
             // Validaciones básicas
-            if (intervalos[0] <= 0 || intervalos[1] <= 0 || intervalos[2] < 0 || intervalos[3] <= 0) {
+            if (intervalos[0] <= 0 || intervalos[1] <= 0 || intervalos[2] <= 0 || 
+                intervalos[3] <= 0 || intervalos[4] <= 0 || intervalos[5] < 0 || intervalos[6] <= 0) {
                 throw new IllegalArgumentException("Los valores deben ser números positivos");
             }
             
-            if (intervalos[3] > 10) {
+            if (intervalos[6] > 10) {
                 throw new IllegalArgumentException("Máximo 10 hilos permitidos");
             }
             
             // Guardar en BD
             configuracionService.guardarConfiguracion("scheduler.alertas_intervalo_horas", String.valueOf(intervalos[0]));
             configuracionService.guardarConfiguracion("scheduler.mantenimiento_intervalo_horas", String.valueOf(intervalos[1]));
-            configuracionService.guardarConfiguracion("scheduler.delay_inicial_minutos", String.valueOf(intervalos[2]));
-            configuracionService.guardarConfiguracion("scheduler.max_hilos", String.valueOf(intervalos[3]));
+            configuracionService.guardarConfiguracion("scheduler.limpieza_intervalo_horas", String.valueOf(intervalos[2]));
+            configuracionService.guardarConfiguracion("scheduler.retencion_alertas_atendidas_dias", String.valueOf(intervalos[3]));
+            configuracionService.guardarConfiguracion("scheduler.retencion_alertas_enviadas_dias", String.valueOf(intervalos[4]));
+            configuracionService.guardarConfiguracion("scheduler.delay_inicial_minutos", String.valueOf(intervalos[5]));
+            configuracionService.guardarConfiguracion("scheduler.max_hilos", String.valueOf(intervalos[6]));
             configuracionService.guardarConfiguracion("scheduler.auto_inicio", String.valueOf(chkAutoInicio.isSelected()));
             
             actualizarConfiguracionMostrada();
@@ -226,6 +260,9 @@ public class ConfiguracionSchedulerPanel extends JPanel {
         config.append("=== CONFIGURACIONES ACTUALES ===\n");
         config.append("🔔 Alertas cada: ").append(txtIntervaloAlertas.getText()).append(" horas\n");
         config.append("🔧 Mantenimiento cada: ").append(txtIntervaloMantenimiento.getText()).append(" horas\n");
+        config.append("🧹 Limpieza cada: ").append(txtIntervaloLimpieza.getText()).append(" horas\n");
+        config.append("📦 Retención atendidas: ").append(txtRetencionAtendidas.getText()).append(" días\n");
+        config.append("📮 Retención enviadas: ").append(txtRetencionEnviadas.getText()).append(" días\n");
         config.append("⏰ Delay inicial: ").append(txtDelayInicial.getText()).append(" minutos\n");
         config.append("🧵 Hilos máximo: ").append(txtMaxHilos.getText()).append("\n");
         config.append("🚀 Auto-inicio: ").append(chkAutoInicio.isSelected() ? "SÍ" : "NO").append("\n");
@@ -241,7 +278,7 @@ public class ConfiguracionSchedulerPanel extends JPanel {
     
     private void actualizarEstado() {
         if (schedulerService != null) {
-            txtEstadoScheduler.setText(schedulerService.obtenerEstado());
+            txtEstadoScheduler.setText(schedulerService.getEstadoScheduler());
         } else {
             txtEstadoScheduler.setText("❌ Scheduler no inicializado\n\nUse 'Reiniciar Scheduler' para crear una instancia");
         }

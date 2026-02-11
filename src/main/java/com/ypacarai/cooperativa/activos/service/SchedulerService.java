@@ -22,6 +22,9 @@ public class SchedulerService {
     private static final int INTERVALO_ALERTAS_HORAS_DEFAULT = 8; 
     private static final int INTERVALO_PREVENTIVO_HORAS_DEFAULT = 24;
     private static final int INTERVALO_TICKETS_HORAS_DEFAULT = 168; // 1 semana
+    private static final int INTERVALO_LIMPIEZA_HORAS_DEFAULT = 168; // 1 semana
+    private static final int RETENCION_ALERTAS_ATENDIDAS_DEFAULT = 90; // 90 días
+    private static final int RETENCION_ALERTAS_ENVIADAS_DEFAULT = 180; // 180 días
     private static final int DELAY_INICIAL_MINUTOS_DEFAULT = 5;
     private static final int MAX_HILOS_DEFAULT = 3;
     
@@ -29,6 +32,9 @@ public class SchedulerService {
     private int intervaloAlertasHoras;
     private int intervaloPreventivoHoras;
     private int intervaloTicketsHoras;
+    private int intervaloLimpiezaHoras;
+    private int retencionAlertasAtendidas;
+    private int retencionAlertasEnviadas;
     private int delayInicialMinutos;
     private int maxHilos;
     private boolean autoInicio;
@@ -44,15 +50,18 @@ public class SchedulerService {
     private ScheduledFuture<?> alertasJob;
     private ScheduledFuture<?> mantenimientoPreventivoJob;
     private ScheduledFuture<?> ticketsPreventivosJob;
+    private ScheduledFuture<?> limpiezaAlertasJob;
     private boolean schedulerActivo = false;
     
     // Estadísticas
     private int ejecucionesAlertas = 0;
     private int ejecucionesMantenimiento = 0;
     private int ejecucionesTickets = 0;
+    private int ejecucionesLimpieza = 0;
     private LocalDateTime ultimaEjecucionAlertas;
     private LocalDateTime ultimaEjecucionMantenimiento;
     private LocalDateTime ultimaEjecucionTickets;
+    private LocalDateTime ultimaEjecucionLimpieza;
     
     public SchedulerService() {
         // Inicializar servicios
@@ -104,6 +113,18 @@ public class SchedulerService {
                 configuracionService.obtenerValorConfiguracion("scheduler.tickets_intervalo_horas", 
                 String.valueOf(INTERVALO_TICKETS_HORAS_DEFAULT)));
             
+            this.intervaloLimpiezaHoras = Integer.parseInt(
+                configuracionService.obtenerValorConfiguracion("scheduler.limpieza_intervalo_horas", 
+                String.valueOf(INTERVALO_LIMPIEZA_HORAS_DEFAULT)));
+            
+            this.retencionAlertasAtendidas = Integer.parseInt(
+                configuracionService.obtenerValorConfiguracion("scheduler.retencion_alertas_atendidas_dias", 
+                String.valueOf(RETENCION_ALERTAS_ATENDIDAS_DEFAULT)));
+            
+            this.retencionAlertasEnviadas = Integer.parseInt(
+                configuracionService.obtenerValorConfiguracion("scheduler.retencion_alertas_enviadas_dias", 
+                String.valueOf(RETENCION_ALERTAS_ENVIADAS_DEFAULT)));
+            
             this.delayInicialMinutos = Integer.parseInt(
                 configuracionService.obtenerValorConfiguracion("scheduler.delay_inicial_minutos", 
                 String.valueOf(DELAY_INICIAL_MINUTOS_DEFAULT)));
@@ -123,6 +144,9 @@ public class SchedulerService {
             this.intervaloAlertasHoras = INTERVALO_ALERTAS_HORAS_DEFAULT;
             this.intervaloPreventivoHoras = INTERVALO_PREVENTIVO_HORAS_DEFAULT;
             this.intervaloTicketsHoras = INTERVALO_TICKETS_HORAS_DEFAULT;
+            this.intervaloLimpiezaHoras = INTERVALO_LIMPIEZA_HORAS_DEFAULT;
+            this.retencionAlertasAtendidas = RETENCION_ALERTAS_ATENDIDAS_DEFAULT;
+            this.retencionAlertasEnviadas = RETENCION_ALERTAS_ENVIADAS_DEFAULT;
             this.delayInicialMinutos = DELAY_INICIAL_MINUTOS_DEFAULT;
             this.maxHilos = MAX_HILOS_DEFAULT;
             this.autoInicio = true;
@@ -165,12 +189,23 @@ public class SchedulerService {
                 TimeUnit.MINUTES
             );
             
+            // Job 4: Limpieza automática de alertas antiguas (intervalo configurable)
+            limpiezaAlertasJob = scheduler.scheduleAtFixedRate(
+                this::ejecutarProcesoLimpiezaAlertas,
+                this.delayInicialMinutos + 10, // Delay inicial + 10 min
+                this.intervaloLimpiezaHoras * 60, // Período en minutos (default: 1 semana)
+                TimeUnit.MINUTES
+            );
+            
             schedulerActivo = true;
             
             LOGGER.log(Level.INFO, "✅ Scheduler iniciado exitosamente:");
             LOGGER.log(Level.INFO, "   🔔 Alertas automáticas cada {0} horas", this.intervaloAlertasHoras);
             LOGGER.log(Level.INFO, "   🔧 Mantenimiento preventivo cada {0} horas", this.intervaloPreventivoHoras);
             LOGGER.log(Level.INFO, "   🎫 Tickets preventivos cada {0} horas", this.intervaloTicketsHoras);
+            LOGGER.log(Level.INFO, "   🧹 Limpieza de alertas cada {0} horas", this.intervaloLimpiezaHoras);
+            LOGGER.log(Level.INFO, "   📦 Retención: {0} días (atendidas), {1} días (enviadas)", 
+                      new Object[]{this.retencionAlertasAtendidas, this.retencionAlertasEnviadas});
             LOGGER.log(Level.INFO, "   ⏱️  Próxima ejecución en {0} minutos", this.delayInicialMinutos);
             
         } catch (Exception e) {
@@ -199,6 +234,11 @@ public class SchedulerService {
             if (ticketsPreventivosJob != null && !ticketsPreventivosJob.isCancelled()) {
                 ticketsPreventivosJob.cancel(true);
                 LOGGER.log(Level.INFO, "✅ Job de tickets preventivos cancelado");
+            }
+            
+            if (limpiezaAlertasJob != null && !limpiezaAlertasJob.isCancelled()) {
+                limpiezaAlertasJob.cancel(true);
+                LOGGER.log(Level.INFO, "✅ Job de limpieza de alertas cancelado");
             }
             
             schedulerActivo = false;
@@ -354,6 +394,45 @@ public class SchedulerService {
     }
     
     /**
+     * Job automático: Limpieza de alertas antiguas
+     */
+    private void ejecutarProcesoLimpiezaAlertas() {
+        try {
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+            LOGGER.log(Level.INFO, "🧹 [SCHEDULER] Ejecutando limpieza automática de alertas antiguas - {0}", timestamp);
+            
+            // Ejecutar limpieza con criterios configurados
+            int alertasEliminadas = mantenimientoService.limpiarAlertasAntiguas(
+                this.retencionAlertasAtendidas,
+                this.retencionAlertasEnviadas
+            );
+            
+            // Estadísticas
+            ejecucionesLimpieza++;
+            ultimaEjecucionLimpieza = LocalDateTime.now();
+            
+            LOGGER.log(Level.INFO, "✅ [SCHEDULER] Limpieza de alertas completada - {0} alertas eliminadas - Ejecución #{1}", 
+                      new Object[]{alertasEliminadas, ejecucionesLimpieza});
+            
+            // Registrar en log si se eliminaron muchas alertas
+            if (alertasEliminadas > 100) {
+                LOGGER.log(Level.WARNING, "⚠️ [SCHEDULER] Se eliminaron {0} alertas antiguas. Considere revisar criterios de retención.", 
+                          alertasEliminadas);
+            }
+            
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "❌ [SCHEDULER] Error en limpieza automática de alertas", e);
+            
+            try {
+                emailService.enviarAlertaError("Error en Scheduler de Limpieza", 
+                    "Error ejecutando limpieza automática de alertas: " + e.getMessage());
+            } catch (Exception emailError) {
+                LOGGER.log(Level.SEVERE, "❌ Error adicional enviando email de error", emailError);
+            }
+        }
+    }
+    
+    /**
      * Ejecuta una tarea única programada (para pruebas)
      */
     public void ejecutarTareaUnica(Runnable tarea, int delayMinutos) {
@@ -383,17 +462,25 @@ public class SchedulerService {
     public void ejecutarTicketsPreventivosAhora() {
         LOGGER.log(Level.INFO, "🎫 Ejecutando generación de tickets manualmente...");
         ejecutarProcesoTicketsPreventivos();
-    }
-    
+    }    
+    /**
+     * Fuerza ejecución inmediata de limpieza de alertas (para pruebas)
+     */
+    public void ejecutarLimpiezaAlertasAhora() {
+        LOGGER.log(Level.INFO, "▶️ Ejecución MANUAL de limpieza de alertas antiguas");
+        ejecutarProcesoLimpiezaAlertas();
+    }    
     // ===== GETTERS PARA MONITOREO =====
     
     public boolean isSchedulerActivo() { return schedulerActivo; }
     public int getEjecucionesAlertas() { return ejecucionesAlertas; }
     public int getEjecucionesMantenimiento() { return ejecucionesMantenimiento; }
     public int getEjecucionesTickets() { return ejecucionesTickets; }
+    public int getEjecucionesLimpieza() { return ejecucionesLimpieza; }
     public LocalDateTime getUltimaEjecucionAlertas() { return ultimaEjecucionAlertas; }
     public LocalDateTime getUltimaEjecucionMantenimiento() { return ultimaEjecucionMantenimiento; }
     public LocalDateTime getUltimaEjecucionTickets() { return ultimaEjecucionTickets; }
+    public LocalDateTime getUltimaEjecucionLimpieza() { return ultimaEjecucionLimpieza; }
     
     /**
      * Obtiene estado detallado del scheduler para monitoreo
@@ -405,6 +492,7 @@ public class SchedulerService {
         estado.append("Ejecuciones alertas: ").append(ejecucionesAlertas).append("\n");
         estado.append("Ejecuciones mantenimiento: ").append(ejecucionesMantenimiento).append("\n");
         estado.append("Ejecuciones tickets: ").append(ejecucionesTickets).append("\n");
+        estado.append("Ejecuciones limpieza: ").append(ejecucionesLimpieza).append("\n");
         
         if (ultimaEjecucionAlertas != null) {
             estado.append("Última ejecución alertas: ")
@@ -421,6 +509,12 @@ public class SchedulerService {
         if (ultimaEjecucionTickets != null) {
             estado.append("Última ejecución tickets: ")
                   .append(ultimaEjecucionTickets.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                  .append("\n");
+        }
+        
+        if (ultimaEjecucionLimpieza != null) {
+            estado.append("Última ejecución limpieza: ")
+                  .append(ultimaEjecucionLimpieza.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
                   .append("\n");
         }
         

@@ -419,6 +419,62 @@ public class AlertaMantenimientoDAO {
     }
     
     /**
+     * Limpia alertas antiguas según criterios de retención
+     * @param diasRetencionAtendidas Días para conservar alertas Atendidas/Canceladas (ej: 90)
+     * @param diasRetencionEnviadas Días para conservar alertas Enviadas sin atender (ej: 180)
+     * @return Cantidad de alertas eliminadas
+     */
+    public int limpiarAlertasAntiguas(int diasRetencionAtendidas, int diasRetencionEnviadas) {
+        int totalEliminadas = 0;
+        
+        try (Connection conn = DatabaseConfigComplete.getConnection()) {
+            // 1. Eliminar alertas ATENDIDAS o CANCELADAS antiguas
+            String sqlAtendidas = "DELETE FROM ALERTA " +
+                                "WHERE ale_estado IN ('Atendida', 'Cancelada') " +
+                                "AND actualizado_en < DATE_SUB(NOW(), INTERVAL ? DAY)";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sqlAtendidas)) {
+                stmt.setInt(1, diasRetencionAtendidas);
+                int eliminadas = stmt.executeUpdate();
+                totalEliminadas += eliminadas;
+                System.out.println("Alertas atendidas/canceladas eliminadas (>" + diasRetencionAtendidas + " días): " + eliminadas);
+            }
+            
+            // 2. Eliminar alertas ENVIADAS pero no atendidas muy antiguas
+            String sqlEnviadas = "DELETE FROM ALERTA " +
+                               "WHERE ale_estado = 'Enviada' " +
+                               "AND actualizado_en < DATE_SUB(NOW(), INTERVAL ? DAY)";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sqlEnviadas)) {
+                stmt.setInt(1, diasRetencionEnviadas);
+                int eliminadas = stmt.executeUpdate();
+                totalEliminadas += eliminadas;
+                System.out.println("Alertas enviadas sin atender eliminadas (>" + diasRetencionEnviadas + " días): " + eliminadas);
+            }
+            
+            // 3. Eliminar alertas PENDIENTES obsoletas (fecha objetivo pasó hace más de X días)
+            String sqlObsoletas = "DELETE FROM ALERTA " +
+                                "WHERE ale_estado = 'Pendiente' " +
+                                "AND ale_fecha_objetivo < DATE_SUB(CURRENT_DATE, INTERVAL ? DAY)";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sqlObsoletas)) {
+                stmt.setInt(1, diasRetencionEnviadas); // Usar mismo criterio que enviadas
+                int eliminadas = stmt.executeUpdate();
+                totalEliminadas += eliminadas;
+                System.out.println("Alertas pendientes obsoletas eliminadas (>" + diasRetencionEnviadas + " días): " + eliminadas);
+            }
+            
+            System.out.println("Total de alertas antiguas eliminadas: " + totalEliminadas);
+            
+        } catch (SQLException e) {
+            System.err.println("Error al limpiar alertas antiguas: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return totalEliminadas;
+    }
+    
+    /**
      * Obtiene todas las alertas (con paginación opcional)
      */
     public List<AlertaMantenimiento> findAll(int limit, int offset) {

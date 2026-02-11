@@ -22,9 +22,11 @@ import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -279,6 +281,17 @@ public class SistemaUsuariosPanel extends JPanel {
         
         gbc.gridx = 3;
         cmbFiltroRol = new JComboBox<>();
+        cmbFiltroRol.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value == null) {
+                    setText("-- Todos los roles --");
+                }
+                return this;
+            }
+        });
         cmbFiltroRol.addItem(null); // Opción "Todos"
         for (Usuario.Rol rol : Usuario.Rol.values()) {
             cmbFiltroRol.addItem(rol);

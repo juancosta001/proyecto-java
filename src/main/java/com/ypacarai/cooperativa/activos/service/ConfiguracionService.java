@@ -50,6 +50,19 @@ public class ConfiguracionService {
     }
     
     /**
+     * Guarda una configuración simple con clave-valor
+     */
+    public boolean guardarConfiguracion(String clave, String valor) {
+        ConfiguracionSistema config = obtenerConfiguracion(clave);
+        if (config == null) {
+            config = new ConfiguracionSistema();
+            config.setConfClave(clave);
+        }
+        config.setConfValor(valor);
+        return guardarConfiguracion(config);
+    }
+    
+    /**
      * Obtiene configuración por clave con cache
      */
     public ConfiguracionSistema obtenerConfiguracion(String clave) {

@@ -3,7 +3,19 @@ echo ====================================
 echo  EJECUTAR SISTEMA DE ACTIVOS
 echo ====================================
 
-echo Iniciando sistema con Login...
-java -cp "target\classes;lib\mysql-connector-j-8.0.33.jar;lib\javax.mail-1.6.2.jar;lib\activation-1.1.1.jar" com.ypacarai.cooperativa.activos.view.LoginWindowNew
+set MAVEN_BIN="C:\Program Files\NetBeans-19\netbeans\java\maven\bin\mvn.cmd"
+
+echo Compilando y ejecutando con Maven...
+echo (Esto incluye todas las dependencias: POI, iText, MySQL, etc.)
+
+call %MAVEN_BIN% clean compile -q
+
+if %errorlevel% neq 0 (
+    echo Error en compilacion
+    pause
+    exit /b %errorlevel%
+)
+
+call %MAVEN_BIN% exec:java -Dexec.mainClass="com.ypacarai.cooperativa.activos.view.LoginWindowNew"
 
 pause
