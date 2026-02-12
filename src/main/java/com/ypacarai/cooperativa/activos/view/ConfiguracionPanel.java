@@ -53,12 +53,16 @@ import com.ypacarai.cooperativa.activos.model.ConfiguracionSistema;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.ConfiguracionService;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel de Configuración del Sistema
  * Cooperativa Ypacaraí LTDA
  */
 public class ConfiguracionPanel extends JPanel {
+    
+    // IconManager para iconos consistentes
+    private static final IconManager iconManager = IconManager.getInstance();
     
     // Colores corporativos
     private static final Color COLOR_VERDE_COOPERATIVA = new Color(34, 139, 34);
@@ -102,7 +106,7 @@ public class ConfiguracionPanel extends JPanel {
         setBorder(new EmptyBorder(20, 20, 20, 20));
         
         // Título principal
-        JLabel lblTitulo = new JLabel("⚙️ Configuración del Sistema");
+        JLabel lblTitulo = new JLabel(iconManager.withIcon("CONFIG", "Configuración del Sistema"));
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(COLOR_VERDE_COOPERATIVA);
         lblTitulo.setBorder(new EmptyBorder(0, 0, 20, 0));
@@ -117,8 +121,8 @@ public class ConfiguracionPanel extends JPanel {
         createPanelConfiguracionAlertas();
         
         // Agregar pestañas al tabbedPane
-        tabbedPane.addTab("📋 Parámetros Generales", panelParametrosGenerales);
-        tabbedPane.addTab("🔔 Configuración de Alertas", panelConfiguracionAlertas);
+        tabbedPane.addTab(iconManager.withIcon("TABLA", "Parámetros Generales"), panelParametrosGenerales);
+        tabbedPane.addTab(iconManager.withIcon("ALERTA", "Configuración de Alertas"), panelConfiguracionAlertas);
         
         add(tabbedPane, BorderLayout.CENTER);
         
@@ -142,9 +146,9 @@ public class ConfiguracionPanel extends JPanel {
             comboFiltro.addItem(categoria.getDescripcion());
         }
         
-        JButton btnNuevaConfig = createStyledButton("➕ Nueva Configuración", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
-        JButton btnEditarConfig = createStyledButton("✏️ Editar", COLOR_AZUL_INFO, COLOR_BLANCO);
-        JButton btnEliminarConfig = createStyledButton("🗑️ Eliminar", COLOR_ROJO_DANGER, COLOR_BLANCO);
+        JButton btnNuevaConfig = createStyledButton(iconManager.withIcon("NUEVO", "Nueva Configuración"), COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
+        JButton btnEditarConfig = createStyledButton(iconManager.withIcon("EDITAR", "Editar"), COLOR_AZUL_INFO, COLOR_BLANCO);
+        JButton btnEliminarConfig = createStyledButton(iconManager.withIcon("ELIMINAR", "Eliminar"), COLOR_ROJO_DANGER, COLOR_BLANCO);
         
         panelFiltros.add(lblFiltro);
         panelFiltros.add(comboFiltro);
@@ -213,9 +217,9 @@ public class ConfiguracionPanel extends JPanel {
         JPanel panelOpcionesAlertas = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         panelOpcionesAlertas.setBackground(COLOR_BLANCO);
         
-        JButton btnEditarAlerta = createStyledButton("✏️ Editar Alerta", COLOR_AZUL_INFO, COLOR_BLANCO);
+        JButton btnEditarAlerta = createStyledButton(iconManager.withIcon("EDITAR", "Editar Alerta"), COLOR_AZUL_INFO, COLOR_BLANCO);
         JButton btnProbarAlerta = createStyledButton("🧪 Probar Alerta", COLOR_NARANJA_WARNING, COLOR_BLANCO);
-        JButton btnRestaurarDefecto = createStyledButton("🔄 Restaurar por Defecto", COLOR_GRIS_TEXTO, COLOR_BLANCO);
+        JButton btnRestaurarDefecto = createStyledButton(iconManager.withIcon("REFRESCAR", "Restaurar por Defecto"), COLOR_GRIS_TEXTO, COLOR_BLANCO);
         
         panelOpcionesAlertas.add(btnEditarAlerta);
         panelOpcionesAlertas.add(btnEditarAlerta);
@@ -310,9 +314,9 @@ public class ConfiguracionPanel extends JPanel {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         panelBotones.setBackground(COLOR_BLANCO);
         
-        JButton btnGuardar = createStyledButton("💾 Guardar Cambios", COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
-        JButton btnCancelar = createStyledButton("❌ Cancelar", COLOR_GRIS_TEXTO, COLOR_BLANCO);
-        JButton btnRecargar = createStyledButton("🔄 Recargar", COLOR_AZUL_INFO, COLOR_BLANCO);
+        JButton btnGuardar = createStyledButton(iconManager.withIcon("GUARDAR", "Guardar Cambios"), COLOR_VERDE_COOPERATIVA, COLOR_BLANCO);
+        JButton btnCancelar = createStyledButton(iconManager.withIcon("CANCELAR", "Cancelar"), COLOR_GRIS_TEXTO, COLOR_BLANCO);
+        JButton btnRecargar = createStyledButton(iconManager.withIcon("REFRESCAR", "Recargar"), COLOR_AZUL_INFO, COLOR_BLANCO);
         
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCancelar);
@@ -830,11 +834,11 @@ public class ConfiguracionPanel extends JPanel {
             
             // Botones
             JPanel panelBotones = new JPanel(new FlowLayout());
-            JButton btnGuardar = new JButton("💾 Guardar");
+            JButton btnGuardar = new JButton(iconManager.withIcon("GUARDAR", "Guardar"));
             btnGuardar.setBackground(new Color(40, 167, 69));
             btnGuardar.setForeground(Color.WHITE);
             
-            JButton btnCancelar = new JButton("❌ Cancelar");
+            JButton btnCancelar = new JButton(iconManager.withIcon("CANCELAR", "Cancelar"));
             btnCancelar.setBackground(new Color(220, 53, 69));
             btnCancelar.setForeground(Color.WHITE);
             
@@ -1129,10 +1133,10 @@ public class ConfiguracionPanel extends JPanel {
             Map<String, Object> stats = configuracionService.obtenerEstadisticasConfiguracion();
             
             // Crear KPIs
-            panelKPIs.add(createKPICard("Configuraciones", "45", "⚙️", COLOR_AZUL_INFO));
-            panelKPIs.add(createKPICard("Alertas Activas", "6", "🔔", COLOR_VERDE_COOPERATIVA));
-            panelKPIs.add(createKPICard("Con Sonido", "3", "🔊", COLOR_NARANJA_WARNING));
-            panelKPIs.add(createKPICard("Con Email", "5", "📧", COLOR_AZUL_INFO));
+            panelKPIs.add(createKPICard("Configuraciones", "45", iconManager.getIcon("CONFIG"), COLOR_AZUL_INFO));
+            panelKPIs.add(createKPICard("Alertas Activas", "6", iconManager.getIcon("NOTIFICACION"), COLOR_VERDE_COOPERATIVA));
+            panelKPIs.add(createKPICard("Con Sonido", "3", iconManager.getIcon("SONIDO"), COLOR_NARANJA_WARNING));
+            panelKPIs.add(createKPICard("Con Email", "5", iconManager.getIcon("EMAIL"), COLOR_AZUL_INFO));
             
             // Información adicional
             StringBuilder info = new StringBuilder();
@@ -1236,9 +1240,9 @@ public class ConfiguracionPanel extends JPanel {
         resultado.append("═══ VALIDACIÓN DE CONFIGURACIONES ═══\n\n");
         
         if (errores.isEmpty()) {
-            resultado.append("✅ Todas las configuraciones son válidas!\n");
+            resultado.append(iconManager.getIcon("SUCCESS") + " Todas las configuraciones son válidas!\n");
         } else {
-            resultado.append("❌ Se encontraron errores en las configuraciones:\n\n");
+            resultado.append(iconManager.getIcon("ERROR") + " Se encontraron errores en las configuraciones:\n\n");
             for (Map.Entry<String, List<String>> entry : errores.entrySet()) {
                 resultado.append("• ").append(entry.getKey()).append(":\n");
                 for (String error : entry.getValue()) {

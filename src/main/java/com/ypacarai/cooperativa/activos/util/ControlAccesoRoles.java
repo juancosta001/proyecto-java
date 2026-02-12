@@ -34,6 +34,16 @@ public class ControlAccesoRoles {
         ELIMINAR_TICKETS,
         ASIGNAR_TICKETS,
         
+        // Traslados
+        VER_TRASLADOS,
+        CREAR_TRASLADOS,
+        EDITAR_TRASLADOS,
+        
+        // Fichas de Reporte
+        VER_FICHAS_REPORTE,
+        CREAR_FICHAS_REPORTE,
+        ENVIAR_FICHAS_REPORTE,
+        
         // Mantenimiento
         VER_MANTENIMIENTO,
         CREAR_MANTENIMIENTO,
@@ -84,6 +94,14 @@ public class ControlAccesoRoles {
            // Permiso.VER_TICKETS,
         //    Permiso.CREAR_TICKETS,
           //  Permiso.EDITAR_TICKETS,
+            // Traslados - puede gestionar traslados
+            Permiso.VER_TRASLADOS,
+            Permiso.CREAR_TRASLADOS,
+            Permiso.EDITAR_TRASLADOS,
+            // Fichas de Reporte - puede crear y enviar fichas
+            Permiso.VER_FICHAS_REPORTE,
+            Permiso.CREAR_FICHAS_REPORTE,
+            Permiso.ENVIAR_FICHAS_REPORTE,
             // Mantenimiento - puede realizar mantenimientos
             Permiso.VER_MANTENIMIENTO,
             Permiso.CREAR_MANTENIMIENTO,
@@ -142,6 +160,12 @@ public class ControlAccesoRoles {
                 
             case "tickets":
                 return tienePermiso(usuario, Permiso.VER_TICKETS);
+                
+            case "traslados":
+                return tienePermiso(usuario, Permiso.VER_TRASLADOS);
+                
+            case "fichas":
+                return tienePermiso(usuario, Permiso.VER_FICHAS_REPORTE);
                 
             case "mantenimiento":
                 return tienePermiso(usuario, Permiso.VER_MANTENIMIENTO);

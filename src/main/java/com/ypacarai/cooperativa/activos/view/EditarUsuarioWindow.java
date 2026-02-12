@@ -27,6 +27,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Ventana para Editar Usuarios Existentes
@@ -56,6 +57,7 @@ public class EditarUsuarioWindow extends JFrame {
     
     // Servicios y datos
     private GestionUsuariosService gestionUsuariosService;
+    private IconManager iconManager = IconManager.getInstance();
     private Usuario usuarioActual;
     private Usuario usuarioAEditar;
     private JFrame ventanaPadre;
@@ -74,7 +76,7 @@ public class EditarUsuarioWindow extends JFrame {
     
     private void initComponents() {
         // Configuración básica de la ventana
-        setTitle("✏️ Editar Usuario - Sistema de Activos");
+        setTitle(iconManager.withIcon("EDITAR", "Editar Usuario - Sistema de Activos"));
         setSize(500, 650);
         setLocationRelativeTo(ventanaPadre);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -89,7 +91,7 @@ public class EditarUsuarioWindow extends JFrame {
         headerPanel.setBackground(COLOR_VERDE_COOPERATIVA);
         headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
         
-        JLabel lblTitulo = new JLabel("✏️ Editar Usuario");
+        JLabel lblTitulo = new JLabel(iconManager.withIcon("EDITAR", "Editar Usuario"));
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setForeground(COLOR_BLANCO);
         
@@ -111,7 +113,7 @@ public class EditarUsuarioWindow extends JFrame {
         
         // Nombre completo
         gbc.gridx = 0; gbc.gridy = 0;
-        formPanel.add(new JLabel("👤 Nombre Completo:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("PERSONA", "Nombre Completo:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -123,7 +125,7 @@ public class EditarUsuarioWindow extends JFrame {
         gbc.gridx = 0; gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("🔑 Usuario:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("CLAVE", "Usuario:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -138,7 +140,7 @@ public class EditarUsuarioWindow extends JFrame {
         gbc.gridx = 0; gbc.gridy = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("🔒 Nueva Contraseña:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("SEGURIDAD", "Nueva Contraseña:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -151,7 +153,7 @@ public class EditarUsuarioWindow extends JFrame {
         gbc.gridx = 0; gbc.gridy = 3;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("🔒 Confirmar Contraseña:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("SEGURIDAD", "Confirmar Contraseña:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -163,7 +165,7 @@ public class EditarUsuarioWindow extends JFrame {
         gbc.gridx = 0; gbc.gridy = 4;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("📧 Email:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("EMAIL", "Email:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -175,7 +177,7 @@ public class EditarUsuarioWindow extends JFrame {
         gbc.gridx = 0; gbc.gridy = 5;
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
-        formPanel.add(new JLabel("👑 Rol del Usuario:"), gbc);
+        formPanel.add(new JLabel(iconManager.withIcon("ROL", "Rol del Usuario:")), gbc);
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
@@ -210,9 +212,9 @@ public class EditarUsuarioWindow extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
         buttonPanel.setBackground(COLOR_BLANCO);
         
-        btnGuardar = createStyledButton("💾 Guardar Cambios", COLOR_VERDE_COOPERATIVA);
-        btnLimpiar = createStyledButton("🔄 Restablecer", COLOR_AZUL);
-        btnCancelar = createStyledButton("❌ Cancelar", COLOR_GRIS);
+        btnGuardar = createStyledButton(iconManager.withIcon("GUARDAR", "Guardar Cambios"), COLOR_VERDE_COOPERATIVA);
+        btnLimpiar = createStyledButton(iconManager.withIcon("ACTUALIZAR", "Restablecer"), COLOR_AZUL);
+        btnCancelar = createStyledButton(iconManager.withIcon("ERROR", "Cancelar"), COLOR_GRIS);
         
         buttonPanel.add(btnGuardar);
         buttonPanel.add(btnLimpiar);
@@ -296,7 +298,7 @@ public class EditarUsuarioWindow extends JFrame {
         txtEmail.setText(usuarioAEditar.getUsuEmail());
         cmbRol.setSelectedItem(usuarioAEditar.getUsuRol());
         
-        lblStatus.setText("✏️ Editando: " + usuarioAEditar.getUsuNombre());
+        lblStatus.setText(iconManager.withIcon("EDITAR", "Editando: " + usuarioAEditar.getUsuNombre()));
         lblStatus.setForeground(COLOR_AZUL);
     }
     

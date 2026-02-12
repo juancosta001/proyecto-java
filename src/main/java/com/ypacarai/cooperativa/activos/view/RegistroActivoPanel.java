@@ -34,6 +34,7 @@ import com.ypacarai.cooperativa.activos.model.Activo;
 import com.ypacarai.cooperativa.activos.model.TipoActivo;
 import com.ypacarai.cooperativa.activos.model.Ubicacion;
 import com.ypacarai.cooperativa.activos.service.ActivoService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel de registro completo de activos con formularios detallados
@@ -74,6 +75,7 @@ public class RegistroActivoPanel extends JPanel {
     private ActivoService activoService;
     private TipoActivoDAO tipoActivoDAO;
     private UbicacionDAO ubicacionDAO;
+    private IconManager iconManager = IconManager.getInstance();
     
     // Variables de control
     private final MainWindowNew ventanaPrincipal;
@@ -493,10 +495,10 @@ public class RegistroActivoPanel extends JPanel {
         try {
             String numeroSugerido = activoService.generarNumeroActivoAutomatico();
             txtNumeroActivo.setText(numeroSugerido);
-            lblValidacionNumero.setText("✓");
+            lblValidacionNumero.setText(iconManager.getIcon("SUCCESS"));
             lblValidacionNumero.setForeground(Color.GREEN);
         } catch (Exception e) {
-            lblValidacionNumero.setText("⚠");
+            lblValidacionNumero.setText(iconManager.getIcon("WARNING"));
             lblValidacionNumero.setForeground(Color.ORANGE);
         }
     }
@@ -533,12 +535,12 @@ public class RegistroActivoPanel extends JPanel {
                     lblValidacionNumero.setForeground(Color.RED);
                     lblValidacionNumero.setToolTipText("El número ya existe");
                 } else {
-                    lblValidacionNumero.setText("✓");
+                    lblValidacionNumero.setText(iconManager.getIcon("SUCCESS"));
                     lblValidacionNumero.setForeground(Color.GREEN);
                     lblValidacionNumero.setToolTipText("Número válido");
                 }
             } catch (Exception e) {
-                lblValidacionNumero.setText("⚠");
+                lblValidacionNumero.setText(iconManager.getIcon("WARNING"));
                 lblValidacionNumero.setForeground(Color.ORANGE);
                 lblValidacionNumero.setToolTipText("Error al validar");
             }
@@ -562,11 +564,11 @@ public class RegistroActivoPanel extends JPanel {
             
             // Validar que no sea futura
             if (fechaParsed.isAfter(LocalDate.now())) {
-                lblValidacionFecha.setText("⚠");
+                lblValidacionFecha.setText(iconManager.getIcon("WARNING"));
                 lblValidacionFecha.setForeground(Color.ORANGE);
                 lblValidacionFecha.setToolTipText("La fecha no puede ser futura");
             } else {
-                lblValidacionFecha.setText("✓");
+                lblValidacionFecha.setText(iconManager.getIcon("SUCCESS"));
                 lblValidacionFecha.setForeground(Color.GREEN);
                 lblValidacionFecha.setToolTipText("Fecha válida");
             }
@@ -587,16 +589,16 @@ public class RegistroActivoPanel extends JPanel {
         try {
             boolean existe = activoService.existeNumeroSerie(numero);
             if (existe) {
-                lblValidacionSerie.setText("⚠");
+                lblValidacionSerie.setText(iconManager.getIcon("WARNING"));
                 lblValidacionSerie.setForeground(Color.ORANGE);
                 lblValidacionSerie.setToolTipText("El número de serie ya existe");
             } else {
-                lblValidacionSerie.setText("✓");
+                lblValidacionSerie.setText(iconManager.getIcon("SUCCESS"));
                 lblValidacionSerie.setForeground(Color.GREEN);
                 lblValidacionSerie.setToolTipText("Número de serie válido");
             }
         } catch (Exception e) {
-            lblValidacionSerie.setText("⚠");
+            lblValidacionSerie.setText(iconManager.getIcon("WARNING"));
             lblValidacionSerie.setForeground(Color.ORANGE);
             lblValidacionSerie.setToolTipText("Error al validar");
         }

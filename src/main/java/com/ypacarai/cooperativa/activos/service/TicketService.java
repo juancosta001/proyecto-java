@@ -20,6 +20,16 @@ import com.ypacarai.cooperativa.activos.model.Usuario;
  */
 public class TicketService {
 
+    // Máquina de estados: transiciones válidas entre estados de tickets
+    private static final java.util.Map<Ticket.Estado, java.util.Set<Ticket.Estado>> TRANSICIONES_VALIDAS = 
+        java.util.Map.of(
+            Ticket.Estado.Abierto, java.util.Set.of(Ticket.Estado.En_Proceso, Ticket.Estado.Cancelado),
+            Ticket.Estado.En_Proceso, java.util.Set.of(Ticket.Estado.Resuelto, Ticket.Estado.Abierto, Ticket.Estado.Cancelado),
+            Ticket.Estado.Resuelto, java.util.Set.of(Ticket.Estado.Cerrado, Ticket.Estado.En_Proceso),
+            Ticket.Estado.Cerrado, java.util.Set.of(Ticket.Estado.En_Proceso),  // Permite reabrir si es necesario
+            Ticket.Estado.Cancelado, java.util.Set.of(Ticket.Estado.Abierto)    // Permite reactivar
+        );
+
     private final TicketDAO ticketDAO;
     private final ActivoDAO activoDAO;
     private final UsuarioDAO usuarioDAO;
@@ -466,7 +476,7 @@ public class TicketService {
     }
 
     /**
-     * Validar si una transición de estado es válida
+     * Validar si una transición de estado es válida usando la máquina de estados definida
      * @param estadoActual Estado actual del ticket
      * @param nuevoEstado Nuevo estado propuesto
      * @return true si la transición es válida
@@ -476,28 +486,12 @@ public class TicketService {
             return true; // No hay cambio
         }
         
-        switch (estadoActual) {
-            case Abierto:
-                return nuevoEstado == Ticket.Estado.En_Proceso || 
-                       nuevoEstado == Ticket.Estado.Cancelado;
-                       
-            case En_Proceso:
-                return nuevoEstado == Ticket.Estado.Resuelto || 
-                       nuevoEstado == Ticket.Estado.Abierto ||
-                       nuevoEstado == Ticket.Estado.Cancelado;
-                       
-            case Resuelto:
-                return nuevoEstado == Ticket.Estado.Cerrado || 
-                       nuevoEstado == Ticket.Estado.En_Proceso; // Reabrir si no está bien
-                       
-            case Cerrado:
-                return nuevoEstado == Ticket.Estado.En_Proceso; // Reabrir si es necesario
-                
-            case Cancelado:
-                return nuevoEstado == Ticket.Estado.Abierto; // Reactivar
-                
-            default:
-                return false;
+        // Validar usando la máquina de estados definida
+        java.util.Set<Ticket.Estado> transicionesPermitidas = TRANSICIONES_VALIDAS.get(estadoActual);
+        if (transicionesPermitidas == null) {
+            return false; // Estado actual no reconocido
         }
+        
+        return transicionesPermitidas.contains(nuevoEstado);
     }
 }

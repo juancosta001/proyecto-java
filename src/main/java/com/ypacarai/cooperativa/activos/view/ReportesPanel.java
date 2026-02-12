@@ -45,6 +45,7 @@ import com.ypacarai.cooperativa.activos.model.ReporteMantenimientos;
 import com.ypacarai.cooperativa.activos.model.ReporteTraslados;
 import com.ypacarai.cooperativa.activos.service.ReporteService;
 import com.ypacarai.cooperativa.activos.util.ExportadorReportes;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel principal para generación y visualización de reportes
@@ -52,6 +53,9 @@ import com.ypacarai.cooperativa.activos.util.ExportadorReportes;
  */
 public class ReportesPanel extends JPanel {
     private static final long serialVersionUID = 1L;
+    
+    // IconManager
+    private static final IconManager iconManager = IconManager.getInstance();
     
     // Colores del tema
     private static final Color COLOR_VERDE_PRINCIPAL = new Color(34, 139, 34);
@@ -132,7 +136,7 @@ public class ReportesPanel extends JPanel {
         setBorder(new EmptyBorder(15, 15, 15, 15));
         
         // Título principal mejorado
-        JLabel lblTituloPrincipal = new JLabel("📊 Reportes y Análisis del Sistema");
+        JLabel lblTituloPrincipal = new JLabel(iconManager.withIcon("REPORTES", "Reportes y Análisis del Sistema"));
         lblTituloPrincipal.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTituloPrincipal.setForeground(COLOR_VERDE_PRINCIPAL);
         lblTituloPrincipal.setBorder(new EmptyBorder(0, 0, 15, 0));
@@ -145,15 +149,15 @@ public class ReportesPanel extends JPanel {
         
         // Panel de Reportes Operativos
         JPanel panelReportesOperativos = crearPanelReportesOperativos();
-        tabbedPane.addTab("📄 Reportes Operativos", panelReportesOperativos);
+        tabbedPane.addTab(iconManager.withIcon("TABLA", "Reportes Operativos"), panelReportesOperativos);
         
         // Panel Dashboard Ejecutivo
         panelDashboard = crearPanelDashboard();
-        tabbedPane.addTab("📊 Dashboard Ejecutivo", panelDashboard);
+        tabbedPane.addTab(iconManager.withIcon("REPORTES", "Dashboard Ejecutivo"), panelDashboard);
         
         // Panel Consultas Dinámicas
         panelConsultasDinamicas = crearPanelConsultasDinamicas();
-        tabbedPane.addTab("🔍 Consultas Dinámicas", panelConsultasDinamicas);
+        tabbedPane.addTab(iconManager.withIcon("BUSCAR", "Consultas Dinámicas"), panelConsultasDinamicas);
         
         add(tabbedPane, BorderLayout.CENTER);
     }
@@ -269,10 +273,10 @@ public class ReportesPanel extends JPanel {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         panelBotones.setBackground(COLOR_CARD);
         
-        btnGenerarReporte = crearBotonEstilizado("🔍 Generar Reporte", COLOR_AZUL_INFO);
-        btnExportarExcel = crearBotonEstilizado("📊 Excel", COLOR_VERDE_PRINCIPAL);
-        btnExportarPDF = crearBotonEstilizado("📄 PDF", COLOR_ROJO);
-        btnLimpiarFiltros = crearBotonEstilizado("🧹 Limpiar", Color.GRAY);
+        btnGenerarReporte = crearBotonEstilizado(iconManager.withIcon("BUSCAR", "Generar Reporte"), COLOR_AZUL_INFO);
+        btnExportarExcel = crearBotonEstilizado(iconManager.withIcon("REPORTES", "Excel"), COLOR_VERDE_PRINCIPAL);
+        btnExportarPDF = crearBotonEstilizado(iconManager.withIcon("DOCUMENTO", "PDF"), COLOR_ROJO);
+        btnLimpiarFiltros = crearBotonEstilizado(iconManager.withIcon("LIMPIAR", "Limpiar"), Color.GRAY);
         
         panelBotones.add(btnGenerarReporte);
         panelBotones.add(btnExportarExcel);

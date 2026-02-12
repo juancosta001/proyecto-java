@@ -45,6 +45,7 @@ import com.ypacarai.cooperativa.activos.dao.UsuarioDAO;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
 import com.ypacarai.cooperativa.activos.util.ControlAccesoRoles;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel completo de gestión de usuarios con diseño similar al sistema de tickets
@@ -52,6 +53,9 @@ import com.ypacarai.cooperativa.activos.util.ControlAccesoRoles;
  * Sistema de Gestión de Activos - Cooperativa Ypacaraí LTDA
  */
 public class SistemaUsuariosPanel extends JPanel {
+    
+    // IconManager para iconos consistentes
+    private static final IconManager iconManager = IconManager.getInstance();
     
     // Colores del tema
     private static final Color VERDE_PRINCIPAL = new Color(34, 139, 34);
@@ -185,7 +189,7 @@ public class SistemaUsuariosPanel extends JPanel {
         panel.setBackground(VERDE_PRINCIPAL);
         panel.setBorder(new EmptyBorder(20, 25, 20, 25));
         
-        JLabel lblTitulo = new JLabel("👥 Gestión de Usuarios");
+        JLabel lblTitulo = new JLabel(iconManager.withIcon("USUARIOS", "Gestión de Usuarios"));
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(Color.WHITE);
         
@@ -217,21 +221,21 @@ public class SistemaUsuariosPanel extends JPanel {
             long usuariosInactivos = usuarios.size() - usuariosActivos;
             
             // Total de usuarios
-            JLabel lblTotal = crearEtiquetaEstadistica("👥", String.valueOf(usuarios.size()), "Total");
+            JLabel lblTotal = crearEtiquetaEstadistica(iconManager.getIcon("USUARIOS"), String.valueOf(usuarios.size()), "Total");
             panel.add(lblTotal);
             
             // Usuarios activos
-            JLabel lblActivos = crearEtiquetaEstadistica("✅", String.valueOf(usuariosActivos), "Activos");
+            JLabel lblActivos = crearEtiquetaEstadistica(iconManager.getIcon("ACTIVO_ESTADO"), String.valueOf(usuariosActivos), "Activos");
             panel.add(lblActivos);
             
             // Usuarios inactivos
             if (usuariosInactivos > 0) {
-                JLabel lblInactivos = crearEtiquetaEstadistica("❌", String.valueOf(usuariosInactivos), "Inactivos");
+                JLabel lblInactivos = crearEtiquetaEstadistica(iconManager.getIcon("INACTIVO_ESTADO"), String.valueOf(usuariosInactivos), "Inactivos");
                 panel.add(lblInactivos);
             }
             
         } catch (Exception e) {
-            JLabel lblError = crearEtiquetaEstadistica("⚠️", "Error", "Al cargar datos");
+            JLabel lblError = crearEtiquetaEstadistica(iconManager.getIcon("WARNING"), "Error", "Al cargar datos");
             panel.add(lblError);
         }
         
@@ -261,7 +265,7 @@ public class SistemaUsuariosPanel extends JPanel {
         
         // Campo de búsqueda
         gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("🔍 Buscar:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("BUSCAR", "Buscar:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -277,7 +281,7 @@ public class SistemaUsuariosPanel extends JPanel {
         panel.add(txtBusqueda, gbc);
 
         gbc.gridx = 2; gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("👑 Rol:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("ROL", "Rol:")), gbc);
         
         gbc.gridx = 3;
         cmbFiltroRol = new JComboBox<>();
@@ -300,7 +304,7 @@ public class SistemaUsuariosPanel extends JPanel {
         panel.add(cmbFiltroRol, gbc);
 
         gbc.gridx = 4;
-        panel.add(new JLabel("📊 Estado:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("ESTADISTICAS", "Estado:")), gbc);
         
         gbc.gridx = 5;
         cmbFiltroEstado = new JComboBox<>(new String[]{"Todos", "Activos", "Inactivos"});
@@ -377,10 +381,10 @@ public class SistemaUsuariosPanel extends JPanel {
         panel.setBackground(GRIS_CLARO);
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        btnNuevoUsuario = crearBoton("➕ Nuevo Usuario", VERDE_PRINCIPAL, e -> nuevoUsuario());
-        btnEditarUsuario = crearBoton("✏️ Editar Usuario", AZUL_INFO, e -> editarUsuario());
-        btnEliminarUsuario = crearBoton("🗑️ Eliminar Usuario", ROJO_DANGER, e -> eliminarUsuario());
-        btnActualizar = crearBoton("🔄 Actualizar Lista", VERDE_SECUNDARIO, e -> actualizarTabla());
+        btnNuevoUsuario = crearBoton(iconManager.withIcon("NUEVO", "Nuevo Usuario"), VERDE_PRINCIPAL, e -> nuevoUsuario());
+        btnEditarUsuario = crearBoton(iconManager.withIcon("EDITAR", "Editar Usuario"), AZUL_INFO, e -> editarUsuario());
+        btnEliminarUsuario = crearBoton(iconManager.withIcon("ELIMINAR", "Eliminar Usuario"), ROJO_DANGER, e -> eliminarUsuario());
+        btnActualizar = crearBoton(iconManager.withIcon("ACTUALIZAR", "Actualizar Lista"), VERDE_SECUNDARIO, e -> actualizarTabla());
         
         panel.add(btnNuevoUsuario);
         panel.add(btnEditarUsuario);
@@ -470,13 +474,13 @@ public class SistemaUsuariosPanel extends JPanel {
             if (value != null) {
                 String estado = value.toString();
                 if (estado.contains("Activo")) {
-                    setText("✅ Activo");
+                    setText(iconManager.withIcon("ACTIVO_ESTADO", "Activo"));
                     if (!isSelected) {
                         setBackground(new Color(212, 237, 218));
                         setForeground(new Color(21, 87, 36));
                     }
                 } else {
-                    setText("❌ Inactivo");
+                    setText(iconManager.withIcon("INACTIVO_ESTADO", "Inactivo"));
                     if (!isSelected) {
                         setBackground(new Color(248, 215, 218));
                         setForeground(new Color(114, 28, 36));
@@ -504,7 +508,7 @@ public class SistemaUsuariosPanel extends JPanel {
         panelTitulo.setBackground(VERDE_PRINCIPAL);
         panelTitulo.setBorder(new EmptyBorder(15, 20, 15, 20));
         
-        lblTituloFormulario = new JLabel("➕ NUEVO USUARIO");
+        lblTituloFormulario = new JLabel(iconManager.withIcon("NUEVO", "NUEVO USUARIO"));
         lblTituloFormulario.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTituloFormulario.setForeground(Color.WHITE);
         panelTitulo.add(lblTituloFormulario, BorderLayout.WEST);
@@ -538,7 +542,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Nombre completo
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("👤 Nombre Completo:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("PERSONA", "Nombre Completo:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -562,7 +566,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Nombre de usuario
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("🔑 Nombre de Usuario:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("NOMBRE_USUARIO", "Nombre de Usuario:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -586,7 +590,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Contraseña
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("🔒 Contraseña:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("CONTRASEÑA", "Contraseña:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -604,7 +608,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Confirmar contraseña
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("🔒 Confirmar Contraseña:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("CONTRASEÑA", "Confirmar Contraseña:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -628,7 +632,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Email
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("📧 Correo Electrónico:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("EMAIL", "Correo Electrónico:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -652,7 +656,7 @@ public class SistemaUsuariosPanel extends JPanel {
         // Rol del usuario
         gbc.gridy = fila++; gbc.gridx = 0;
         gbc.weightx = 0; gbc.fill = GridBagConstraints.NONE;
-        panel.add(new JLabel("👑 Rol del Usuario:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("ROL", "Rol del Usuario:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -674,7 +678,7 @@ public class SistemaUsuariosPanel extends JPanel {
         ));
         
         JLabel lblInfo = new JLabel("<html>" +
-            "💡 <b>Información importante:</b><br>" +
+            iconManager.getIcon("CONSEJO") + " <b>Información importante:</b><br>" +
             "• Los campos marcados con validación en tiempo real se verifican automáticamente<br>" +
             "• El nombre de usuario debe ser único en el sistema<br>" +
             "• La contraseña debe tener al menos 6 caracteres<br>" +
@@ -692,8 +696,8 @@ public class SistemaUsuariosPanel extends JPanel {
         panel.setBackground(GRIS_CLARO);
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
         
-        JButton btnCancelar = crearBoton("❌ Cancelar", ROJO_DANGER, e -> cancelarFormulario());
-        JButton btnGuardar = crearBoton("💾 Guardar Usuario", VERDE_PRINCIPAL, e -> guardarUsuario());
+        JButton btnCancelar = crearBoton(iconManager.withIcon("CANCELAR", "Cancelar"), ROJO_DANGER, e -> cancelarFormulario());
+        JButton btnGuardar = crearBoton(iconManager.withIcon("GUARDAR", "Guardar Usuario"), VERDE_PRINCIPAL, e -> guardarUsuario());
         
         panel.add(btnCancelar);
         panel.add(btnGuardar);
@@ -889,7 +893,7 @@ public class SistemaUsuariosPanel extends JPanel {
     
     private void nuevoUsuario() {
         limpiarFormulario();
-        lblTituloFormulario.setText("➕ NUEVO USUARIO");
+        lblTituloFormulario.setText(iconManager.withIcon("NUEVO", "NUEVO USUARIO"));
         usuarioEnEdicion = null;
         
         // Configurar campos para creación
@@ -932,7 +936,7 @@ public class SistemaUsuariosPanel extends JPanel {
             // Cargar datos en el formulario
             cargarUsuarioEnFormulario(usuarioEnEdicion);
             
-            lblTituloFormulario.setText("✏️ EDITAR USUARIO");
+            lblTituloFormulario.setText(iconManager.withIcon("EDITAR", "EDITAR USUARIO"));
             
             // Configurar campos para edición
             txtUsuario.setEnabled(false); // No se puede cambiar el username

@@ -48,6 +48,7 @@ import com.ypacarai.cooperativa.activos.model.TipoActivo;
 import com.ypacarai.cooperativa.activos.model.Ubicacion;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.ActivoService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel completo para gestión de inventario de activos
@@ -106,6 +107,7 @@ public class InventarioActivosPanel extends JPanel {
     private ActivoService activoService;
     private TipoActivoDAO tipoActivoDAO;
     private UbicacionDAO ubicacionDAO;
+    private IconManager iconManager = IconManager.getInstance();
     
     public InventarioActivosPanel(Usuario usuarioActual) {
         this.usuarioActual = usuarioActual;
@@ -627,19 +629,19 @@ public class InventarioActivosPanel extends JPanel {
                 switch (estado) {
                     case Operativo:
                         c.setForeground(Color.GREEN.darker());
-                        setText("✅ " + estado.name());
+                        setText(iconManager.getIcon("SUCCESS") + " " + estado.name());
                         break;
                     case En_Mantenimiento:
                         c.setForeground(Color.ORANGE.darker());
-                        setText("🔧 " + estado.name());
+                        setText(iconManager.getIcon("MANTENIMIENTO") + " " + estado.name());
                         break;
                     case Fuera_Servicio:
                         c.setForeground(Color.RED.darker());
-                        setText("❌ " + estado.name());
+                        setText(iconManager.getIcon("ERROR") + " " + estado.name());
                         break;
                     case Trasladado:
                         c.setForeground(Color.GRAY);
-                        setText("📦 " + estado.name());
+                        setText(iconManager.getIcon("EXPORTAR") + " " + estado.name());
                         break;
                     default:
                         c.setForeground(Color.BLACK);
@@ -851,7 +853,7 @@ public class InventarioActivosPanel extends JPanel {
         limpiarFormulario();
         
         // Cambiar el título para nuevo activo
-        lblTituloFormulario.setText("➕ NUEVO ACTIVO");
+        lblTituloFormulario.setText(iconManager.withIcon("NUEVO", "NUEVO ACTIVO"));
         
         // Cambiar a la vista de edición
         cardLayout.show(panelContenedor, "EDICION");
@@ -914,7 +916,7 @@ public class InventarioActivosPanel extends JPanel {
                 activoEnEdicion = activo; // Usar la variable correcta
                 
                 // Cambiar el título para edición
-                lblTituloFormulario.setText("✏️ EDICIÓN DE ACTIVO");
+                lblTituloFormulario.setText(iconManager.withIcon("EDITAR", "EDICIÓN DE ACTIVO"));
                 
                 // Deshabilitar número de activo en edición (no debe cambiarse)
                 txtNumeroActivo.setEnabled(false);

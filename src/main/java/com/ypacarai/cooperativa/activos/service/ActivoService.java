@@ -1,16 +1,23 @@
 package com.ypacarai.cooperativa.activos.service;
 
-import com.ypacarai.cooperativa.activos.dao.*;
-import com.ypacarai.cooperativa.activos.model.*;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
+import com.ypacarai.cooperativa.activos.dao.TipoActivoDAO;
+import com.ypacarai.cooperativa.activos.dao.UbicacionDAO;
+import com.ypacarai.cooperativa.activos.model.Activo;
+import com.ypacarai.cooperativa.activos.model.TipoActivo;
+import com.ypacarai.cooperativa.activos.model.Ubicacion;
 
 /**
  * Servicio definitivo para la gestión de activos
  * Sistema de Gestión de Activos - Cooperativa Ypacaraí LTDA
  */
 public class ActivoService {
+    
+    // Tipos de activo permitidos según el protocolo de delimitación
+    private static final java.util.Set<String> TIPOS_PERMITIDOS = java.util.Set.of("PC", "Impresora");
     
     private final ActivoDAO activoDAO;
     private final TipoActivoDAO tipoActivoDAO;
@@ -67,6 +74,24 @@ public class ActivoService {
             // Validaciones básicas
             if (activo.getActNumeroActivo() == null || activo.getActNumeroActivo().trim().isEmpty()) {
                 throw new IllegalArgumentException("El número de activo es requerido");
+            }
+            
+            // VALIDACIÓN: Restricción de tipos de activo (solo PC e Impresora)
+            if (activo.getTipActId() > 0) {
+                try {
+                    Optional<TipoActivo> tipoOpt = tipoActivoDAO.buscarPorId(activo.getTipActId());
+                    if (tipoOpt.isPresent()) {
+                        String nombreTipo = tipoOpt.get().getNombre();
+                        if (!TIPOS_PERMITIDOS.contains(nombreTipo)) {
+                            throw new IllegalArgumentException(
+                                "Tipo de activo no permitido. Solo se permiten: " + TIPOS_PERMITIDOS + 
+                                ". Tipo recibido: " + nombreTipo
+                            );
+                        }
+                    }
+                } catch (java.sql.SQLException e) {
+                    throw new RuntimeException("Error al validar tipo de activo", e);
+                }
             }
             
             // Verificar que el número de activo no esté duplicado

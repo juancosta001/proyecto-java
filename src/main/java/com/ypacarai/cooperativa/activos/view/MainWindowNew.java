@@ -56,6 +56,7 @@ import com.ypacarai.cooperativa.activos.service.ActivoService;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
 import com.ypacarai.cooperativa.activos.service.MantenimientoPreventivoService;
 import com.ypacarai.cooperativa.activos.util.ControlAccesoRoles;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 
 /**
@@ -81,6 +82,9 @@ public class MainWindowNew extends JFrame {
     private static final Color COLOR_AZUL_INFO = new Color(70, 130, 180);
     private static final Color COLOR_NARANJA_WARNING = new Color(255, 140, 0);
     private static final Color COLOR_ROJO_DANGER = new Color(220, 20, 60);
+    
+    // Gestor de iconos
+    private static final IconManager iconManager = IconManager.getInstance();
     
     // Usuario actual
     private Usuario usuarioActual;
@@ -120,6 +124,9 @@ public class MainWindowNew extends JFrame {
     
     private void initializeServices() {
         try {
+            // Debug del gestor de iconos
+            iconManager.mostrarInfoDebug();
+            
             this.activoService = new ActivoService();
             this.activoDAO = new ActivoDAO();
             this.tipoActivoDAO = new TipoActivoDAO();
@@ -191,6 +198,8 @@ public class MainWindowNew extends JFrame {
         panelContenido.add(dashboard, "dashboard");
         createPanelActivos();
         createPanelTickets();
+        createPanelTraslados();
+        createPanelFichasReporte();
         createPanelMantenimiento();
         createPanelReportes();
         createPanelUsuarios();
@@ -263,7 +272,7 @@ public class MainWindowNew extends JFrame {
         
         // Información del usuario actual
         if (usuarioActual != null) {
-            JLabel lblUsuario = new JLabel("👤 " + usuarioActual.getUsuNombre());
+            JLabel lblUsuario = new JLabel(iconManager.withIcon("PERSONA", usuarioActual.getUsuNombre()));
             lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 10));
             lblUsuario.setForeground(COLOR_VERDE_COOPERATIVA);
             lblUsuario.setBorder(new EmptyBorder(5, 15, 5, 15));
@@ -280,13 +289,15 @@ public class MainWindowNew extends JFrame {
         
         // Botones de navegación - Solo mostrar los permitidos
         String[][] menuItems = {
-            {"📊", "Dashboard", "dashboard"},
-            {"💻", "Gestión de Activos", "activos"},
-            {"🎫", "Sistema de Tickets", "tickets"},
-            {"🔧", "Mantenimiento", "mantenimiento"},
-            {"📈", "Reportes", "reportes"},
-            {"👥", "Usuarios", "usuarios"},
-            {"⚙️", "Configuración", "configuracion"}
+            {iconManager.getIcon("DASHBOARD"), "Dashboard", "dashboard"},
+            {iconManager.getIcon("COMPUTER"), "Gestión de Activos", "activos"},
+            {iconManager.getIcon("TICKET"), "Sistema de Tickets", "tickets"},
+            {iconManager.getIcon("TRASLADO"), "Gestión de Traslados", "traslados"},
+            {iconManager.getIcon("MANTENIMIENTO"), "Mantenimiento", "mantenimiento"},
+            {iconManager.getIcon("REPORTES"), "Reportes", "reportes"},
+            {iconManager.getIcon("USUARIOS"), "Usuarios", "usuarios"},
+            {iconManager.getIcon("FICHA"), "Fichas de Reporte", "fichas"},
+            {iconManager.getIcon("CONFIG"), "Configuración", "configuracion"}
         };
         
         for (String[] item : menuItems) {
@@ -333,7 +344,7 @@ public class MainWindowNew extends JFrame {
                 
                 // Text
                 g2d.setColor(isSelected ? COLOR_VERDE_COOPERATIVA : COLOR_GRIS_TEXTO);
-                g2d.setFont(getFont());
+                g2d.setFont(iconManager.getIconFont(12)); // Usar fuente de emojis
                 FontMetrics fm = g2d.getFontMetrics();
                 int textX = 15;
                 int textY = (getHeight() + fm.getAscent()) / 2 - 2;
@@ -350,7 +361,7 @@ public class MainWindowNew extends JFrame {
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
         button.setFocusPainted(false);
-        button.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        button.setFont(iconManager.getIconFont(12)); // Usar fuente de emojis
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setPreferredSize(new Dimension(220, 40));
         button.setMaximumSize(new Dimension(220, 40));
@@ -429,7 +440,7 @@ public class MainWindowNew extends JFrame {
         barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
         barra.setPreferredSize(new Dimension(0, 30));
         
-        JLabel lblEstado = new JLabel("✅ Sistema operativo - Conexión establecida");
+        JLabel lblEstado = new JLabel(iconManager.withIcon("SUCCESS", "Sistema operativo - Conexión establecida"));
         lblEstado.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblEstado.setForeground(COLOR_VERDE_COOPERATIVA);
         
@@ -732,7 +743,7 @@ public class MainWindowNew extends JFrame {
             
             // Alerta por activos fuera de servicio
             if (dashboardData.getActivosFueraServicio() > 0) {
-                contenido.add(createAlerta("❌", 
+                contenido.add(createAlerta(iconManager.getIcon("ERROR"), 
                     dashboardData.getActivosFueraServicio() + " activo(s) fuera de servicio", 
                     COLOR_ROJO_DANGER));
                 totalAlertas++;
@@ -740,7 +751,7 @@ public class MainWindowNew extends JFrame {
             
             // Alerta por mantenimientos pendientes
             if (dashboardData.getMantenimientosPendientes() > 0) {
-                contenido.add(createAlerta("⚠️", 
+                contenido.add(createAlerta(iconManager.getIcon("WARNING"), 
                     dashboardData.getMantenimientosPendientes() + " mantenimiento(s) vencido(s)", 
                     COLOR_ROJO_DANGER));
                 totalAlertas++;
@@ -748,7 +759,7 @@ public class MainWindowNew extends JFrame {
             
             // Alerta por activos en mantenimiento
             if (dashboardData.getActivosEnMantenimiento() > 0) {
-                contenido.add(createAlerta("🔧", 
+                contenido.add(createAlerta(iconManager.getIcon("MANTENIMIENTO"), 
                     dashboardData.getActivosEnMantenimiento() + " activo(s) en mantenimiento", 
                     COLOR_NARANJA_WARNING));
                 totalAlertas++;
@@ -756,7 +767,7 @@ public class MainWindowNew extends JFrame {
             
             // Alerta por tickets abiertos
             if (dashboardData.getTicketsAbiertos() > 0) {
-                contenido.add(createAlerta("🎫", 
+                contenido.add(createAlerta(iconManager.getIcon("TICKET"), 
                     dashboardData.getTicketsAbiertos() + " ticket(s) abierto(s)", 
                     COLOR_AZUL_INFO));
                 totalAlertas++;
@@ -767,17 +778,17 @@ public class MainWindowNew extends JFrame {
                 (double) dashboardData.getActivosOperativos() / dashboardData.getTotalActivos() * 100 : 0;
             
             if (porcentajeOperativos >= 90) {
-                contenido.add(createAlerta("✅", 
+                contenido.add(createAlerta(iconManager.getIcon("SUCCESS"), 
                     String.format("Sistema operativo al %.1f%% - Estado óptimo", porcentajeOperativos), 
                     COLOR_VERDE_COOPERATIVA));
                 totalAlertas++;
             } else if (porcentajeOperativos >= 75) {
-                contenido.add(createAlerta("⚠️", 
+                contenido.add(createAlerta(iconManager.getIcon("WARNING"), 
                     String.format("Sistema operativo al %.1f%% - Requiere atención", porcentajeOperativos), 
                     COLOR_NARANJA_WARNING));
                 totalAlertas++;
             } else {
-                contenido.add(createAlerta("❌", 
+                contenido.add(createAlerta(iconManager.getIcon("ERROR"), 
                     String.format("Sistema operativo al %.1f%% - Estado crítico", porcentajeOperativos), 
                     COLOR_ROJO_DANGER));
                 totalAlertas++;
@@ -785,7 +796,7 @@ public class MainWindowNew extends JFrame {
             
             // Si no hay alertas importantes, mostrar estado normal
             if (totalAlertas == 1 && porcentajeOperativos >= 90) {
-                contenido.add(createAlerta("🔔", 
+                contenido.add(createAlerta(iconManager.getIcon("NOTIFICACION"), 
                     "No hay alertas pendientes", 
                     COLOR_GRIS_TEXTO));
             }
@@ -808,8 +819,8 @@ public class MainWindowNew extends JFrame {
             e.printStackTrace();
             
             // Alertas de fallback en caso de error
-            contenido.add(createAlerta("⚠️", "Error cargando alertas del sistema", COLOR_ROJO_DANGER));
-            contenido.add(createAlerta("🔄", "Verificando conexión con base de datos...", COLOR_AZUL_INFO));
+            contenido.add(createAlerta(iconManager.getIcon("WARNING"), "Error cargando alertas del sistema", COLOR_ROJO_DANGER));
+            contenido.add(createAlerta(iconManager.getIcon("ACTUALIZAR"), "Verificando conexión con base de datos...", COLOR_AZUL_INFO));
         }
         
         panel.add(contenido, BorderLayout.CENTER);
@@ -916,6 +927,30 @@ public class MainWindowNew extends JFrame {
         panelTickets.add(sistemaTickets, BorderLayout.CENTER);
         
         panelContenido.add(panelTickets, "tickets");
+    }
+    
+    private void createPanelTraslados() {
+        // Crear el panel completo de traslados usando TrasladosPanel
+        JPanel panelTraslados = new JPanel(new BorderLayout());
+        panelTraslados.setBackground(Color.WHITE);
+        
+        // Crear el sistema de traslados con funcionalidad completa
+        TrasladosPanel trasladosPanel = new TrasladosPanel(usuarioActual);
+        panelTraslados.add(trasladosPanel, BorderLayout.CENTER);
+        
+        panelContenido.add(panelTraslados, "traslados");
+    }
+    
+    private void createPanelFichasReporte() {
+        // Crear el panel de fichas de reporte usando FichaReportePanel
+        JPanel panelFichas = new JPanel(new BorderLayout());
+        panelFichas.setBackground(Color.WHITE);
+        
+        // Crear el sistema de fichas de reporte con funcionalidad completa
+        FichaReportePanel fichasPanel = new FichaReportePanel(usuarioActual);
+        panelFichas.add(fichasPanel, BorderLayout.CENTER);
+        
+        panelContenido.add(panelFichas, "fichas");
     }
     
     private void createPanelMantenimiento() {
@@ -1058,7 +1093,7 @@ public class MainWindowNew extends JFrame {
     
     private void updateUserInterface() {
         if (usuarioActual != null) {
-            lblUsuarioActual.setText("👤 " + usuarioActual.getUsuNombre() + " (" + usuarioActual.getUsuRol() + ")");
+            lblUsuarioActual.setText(iconManager.withIcon("PERSONA", usuarioActual.getUsuNombre() + " (" + usuarioActual.getUsuRol() + ")"));
         }
         updateTime();
     }

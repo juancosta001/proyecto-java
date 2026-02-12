@@ -1,28 +1,61 @@
 package com.ypacarai.cooperativa.activos.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.List;
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
 import com.ypacarai.cooperativa.activos.dao.ActivoDAO;
+import com.ypacarai.cooperativa.activos.dao.TicketAsignacionDAO;
+import com.ypacarai.cooperativa.activos.dao.TicketDAO;
 import com.ypacarai.cooperativa.activos.dao.UbicacionDAO;
 import com.ypacarai.cooperativa.activos.dao.UsuarioDAO;
-import com.ypacarai.cooperativa.activos.dao.TicketDAO;
-import com.ypacarai.cooperativa.activos.dao.TicketAsignacionDAO;
 import com.ypacarai.cooperativa.activos.model.Activo;
-import com.ypacarai.cooperativa.activos.model.Ubicacion;
-import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.model.Ticket;
 import com.ypacarai.cooperativa.activos.model.TicketAsignacion;
+import com.ypacarai.cooperativa.activos.model.Ubicacion;
+import com.ypacarai.cooperativa.activos.model.Usuario;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 import com.ypacarai.cooperativa.activos.view.components.MultiTecnicoSelectorPanel;
 
 /**
@@ -62,6 +95,7 @@ public class CrearTicketMejoradoWindow extends JFrame {
     private UsuarioDAO usuarioDAO;
     private TicketDAO ticketDAO;
     private TicketAsignacionDAO asignacionDAO;
+    private IconManager iconManager = IconManager.getInstance();
     
     // Usuario actual
     private Usuario usuarioActual;
@@ -624,7 +658,7 @@ public class CrearTicketMejoradoWindow extends JFrame {
             
             System.out.println("Tickets creados exitosamente: " + ticketsCreados);
             
-            mostrarExito("✅ Se crearon " + ticketsCreados + " tickets exitosamente");
+            mostrarExito("Se crearon " + ticketsCreados + " tickets exitosamente");
             
             // Mostrar diálogo de confirmación
             JOptionPane.showMessageDialog(this,
@@ -649,17 +683,17 @@ public class CrearTicketMejoradoWindow extends JFrame {
     
     // Métodos de utilidad para mensajes
     private void mostrarInfo(String mensaje) {
-        lblStatus.setText("ℹ️ " + mensaje);
+        lblStatus.setText(iconManager.getIcon("INFO") + " " + mensaje);
         lblStatus.setForeground(COLOR_AZUL);
     }
     
     private void mostrarExito(String mensaje) {
-        lblStatus.setText("✅ " + mensaje);
+        lblStatus.setText(iconManager.getIcon("SUCCESS") + " " + mensaje);
         lblStatus.setForeground(COLOR_VERDE_COOPERATIVA);
     }
     
     private void mostrarError(String mensaje) {
-        lblStatus.setText("❌ " + mensaje);
+        lblStatus.setText(iconManager.getIcon("ERROR") + " " + mensaje);
         lblStatus.setForeground(COLOR_ROJO);
     }
     

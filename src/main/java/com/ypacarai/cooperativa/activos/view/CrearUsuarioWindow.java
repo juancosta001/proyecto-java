@@ -1,14 +1,43 @@
 package com.ypacarai.cooperativa.activos.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.GestionUsuariosService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Ventana para Crear Nuevos Usuarios
@@ -39,6 +68,7 @@ public class CrearUsuarioWindow extends JFrame {
     
     // Servicios
     private GestionUsuariosService gestionUsuariosService;
+    private IconManager iconManager = IconManager.getInstance();
     private Usuario usuarioActual;
     private JFrame ventanaPadre;
     
@@ -433,7 +463,7 @@ public class CrearUsuarioWindow extends JFrame {
     private void validarEmail() {
         String email = txtEmail.getText().trim();
         if (!email.isEmpty() && !EMAIL_PATTERN.matcher(email).matches()) {
-            lblStatus.setText("⚠️ Formato de email inválido");
+            lblStatus.setText(iconManager.getIcon("WARNING") + " Formato de email inválido");
             lblStatus.setForeground(Color.ORANGE);
         } else {
             lblStatus.setText(" ");
@@ -443,7 +473,7 @@ public class CrearUsuarioWindow extends JFrame {
     private void validarUsuario() {
         String usuario = txtUsuario.getText().trim();
         if (usuario.length() > 0 && usuario.length() < 3) {
-            lblStatus.setText("⚠️ El usuario debe tener al menos 3 caracteres");
+            lblStatus.setText(iconManager.getIcon("WARNING") + " El usuario debe tener al menos 3 caracteres");
             lblStatus.setForeground(Color.ORANGE);
         } else {
             lblStatus.setText(" ");
@@ -456,10 +486,10 @@ public class CrearUsuarioWindow extends JFrame {
         
         if (!password.isEmpty() && !confirmarPassword.isEmpty()) {
             if (!password.equals(confirmarPassword)) {
-                lblStatus.setText("⚠️ Las contraseñas no coinciden");
+                lblStatus.setText(iconManager.getIcon("WARNING") + " Las contraseñas no coinciden");
                 lblStatus.setForeground(Color.ORANGE);
             } else {
-                lblStatus.setText("✅ Las contraseñas coinciden");
+                lblStatus.setText(iconManager.getIcon("SUCCESS") + " Las contraseñas coinciden");
                 lblStatus.setForeground(COLOR_VERDE_COOPERATIVA);
             }
         }

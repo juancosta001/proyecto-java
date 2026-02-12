@@ -56,6 +56,7 @@ import com.ypacarai.cooperativa.activos.model.Ticket;
 import com.ypacarai.cooperativa.activos.model.Usuario;
 import com.ypacarai.cooperativa.activos.service.ActivoService;
 import com.ypacarai.cooperativa.activos.service.TicketService;
+import com.ypacarai.cooperativa.activos.util.IconManager;
 
 /**
  * Panel completo de sistema de tickets con funcionalidad avanzada
@@ -63,6 +64,9 @@ import com.ypacarai.cooperativa.activos.service.TicketService;
  * Sistema de Gestión de Activos - Cooperativa Ypacaraí LTDA
  */
 public class SistemaTicketsPanel extends JPanel {
+
+    // IconManager para iconos consistentes
+    private static final IconManager iconManager = IconManager.getInstance();
 
     // Colores corporativos
     private static final Color VERDE_PRINCIPAL = new Color(0, 128, 55);
@@ -209,7 +213,7 @@ public class SistemaTicketsPanel extends JPanel {
         panel.setBackground(AZUL_INFO);
         panel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        JLabel lblTitulo = new JLabel("🎫 SISTEMA DE TICKETS DE MANTENIMIENTO");
+        JLabel lblTitulo = new JLabel(iconManager.withIcon("TICKET", "SISTEMA DE TICKETS DE MANTENIMIENTO"));
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblTitulo.setForeground(Color.WHITE);
 
@@ -273,7 +277,7 @@ public class SistemaTicketsPanel extends JPanel {
 
         // Primera fila: Búsqueda y Estado
         gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(new JLabel("🔍 Buscar:"), gbc);
+        panel.add(new JLabel(iconManager.withIcon("BUSCAR", "Buscar:")), gbc);
         
         gbc.gridx = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -442,13 +446,13 @@ public class SistemaTicketsPanel extends JPanel {
         panel.setBackground(GRIS_CLARO);
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        btnNuevoTicket = crearBoton("➕ Nuevo Ticket", VERDE_PRINCIPAL, e -> nuevoTicket());
-        btnCrearPorUbicacion = crearBoton("🏢 Crear por Ubicación", new Color(34, 139, 34), e -> crearTicketsPorUbicacion());
-        btnVerDetalles = crearBoton("👁️ Ver Detalles", AZUL_INFO, e -> verDetallesTicket());
-        btnAsignar = crearBoton("👤 Asignar/Reasignar", PURPLE_INFO, e -> asignarTicket());
-        btnCambiarEstado = crearBoton("🔄 Cambiar Estado", NARANJA_WARNING, e -> cambiarEstadoTicket());
-        btnActualizar = crearBoton("🔄 Actualizar Lista", VERDE_SECUNDARIO, e -> actualizarTabla());
-        btnGenerarAutomaticos = crearBoton("⚙️ Generar Automáticos", GRIS_OSCURO, e -> generarTicketsAutomaticos());
+        btnNuevoTicket = crearBoton(iconManager.withIcon("NUEVO", "Nuevo Ticket"), VERDE_PRINCIPAL, e -> nuevoTicket());
+        btnCrearPorUbicacion = crearBoton(iconManager.withIcon("TERCERIZADO", "Crear por Ubicación"), new Color(34, 139, 34), e -> crearTicketsPorUbicacion());
+        btnVerDetalles = crearBoton(iconManager.withIcon("VER", "Ver Detalles"), AZUL_INFO, e -> verDetallesTicket());
+        btnAsignar = crearBoton(iconManager.withIcon("USUARIO", "Asignar/Reasignar"), PURPLE_INFO, e -> asignarTicket());
+        btnCambiarEstado = crearBoton(iconManager.withIcon("REFRESCAR", "Cambiar Estado"), NARANJA_WARNING, e -> cambiarEstadoTicket());
+        btnActualizar = crearBoton(iconManager.withIcon("ACTUALIZAR", "Actualizar Lista"), VERDE_SECUNDARIO, e -> actualizarTabla());
+        btnGenerarAutomaticos = crearBoton(iconManager.withIcon("CONFIG", "Generar Automáticos"), GRIS_OSCURO, e -> generarTicketsAutomaticos());
         
         panel.add(btnNuevoTicket);
         panel.add(btnCrearPorUbicacion);
@@ -486,15 +490,15 @@ public class SistemaTicketsPanel extends JPanel {
                 switch (estado) {
                     case Abierto:
                         c.setForeground(AZUL_INFO);
-                        setText("🆕 " + estado.name());
+                        setText(iconManager.getIcon("NUEVO") + " " + estado.name());
                         break;
                     case En_Proceso:
                         c.setForeground(NARANJA_WARNING);
-                        setText("⚙️ " + estado.name());
+                        setText(iconManager.getIcon("EN_PROCESO") + " " + estado.name());
                         break;
                     case Resuelto:
                         c.setForeground(VERDE_PRINCIPAL);
-                        setText("✅ " + estado.name());
+                        setText(iconManager.getIcon("COMPLETADO") + " " + estado.name());
                         break;
                     case Cerrado:
                         c.setForeground(GRIS_OSCURO);
@@ -502,7 +506,7 @@ public class SistemaTicketsPanel extends JPanel {
                         break;
                     case Cancelado:
                         c.setForeground(ROJO_DANGER);
-                        setText("❌ " + estado.name());
+                        setText(iconManager.getIcon("ERROR") + " " + estado.name());
                         break;
                     default:
                         c.setForeground(Color.BLACK);
@@ -530,19 +534,19 @@ public class SistemaTicketsPanel extends JPanel {
                 switch (prioridad) {
                     case Critica:
                         c.setForeground(ROJO_DANGER);
-                        setText("🔴 " + prioridad.name());
+                        setText(iconManager.getIcon("CRITICO") + " " + prioridad.name());
                         break;
                     case Alta:
                         c.setForeground(NARANJA_WARNING);
-                        setText("🟠 " + prioridad.name());
+                        setText(iconManager.getIcon("ALERTA") + " " + prioridad.name());
                         break;
                     case Media:
                         c.setForeground(AZUL_INFO);
-                        setText("🔵 " + prioridad.name());
+                        setText(iconManager.getIcon("INFO") + " " + prioridad.name());
                         break;
                     case Baja:
                         c.setForeground(VERDE_PRINCIPAL);
-                        setText("🟢 " + prioridad.name());
+                        setText(iconManager.getIcon("SUCCESS") + " " + prioridad.name());
                         break;
                     default:
                         c.setForeground(Color.BLACK);
@@ -596,7 +600,15 @@ public class SistemaTicketsPanel extends JPanel {
         }
         
         private int calcularProgreso(String estado) {
-            switch (estado.replace("🆕 ", "").replace("⚙️ ", "").replace("✅ ", "").replace("🔒 ", "").replace("❌ ", "")) {
+            // Remover iconos para obtener solo el nombre del estado
+            String estadoLimpio = estado
+                .replace(iconManager.getIcon("NUEVO") + " ", "")
+                .replace(iconManager.getIcon("EN_PROCESO") + " ", "")
+                .replace(iconManager.getIcon("COMPLETADO") + " ", "")
+                .replace(iconManager.getIcon("BLOQUEADO") + " ", "")
+                .replace(iconManager.getIcon("ERROR") + " ", "");
+            
+            switch (estadoLimpio) {
                 case "Abierto": return 10;
                 case "En_Proceso": return 50;
                 case "Resuelto": return 90;
@@ -763,8 +775,8 @@ public class SistemaTicketsPanel extends JPanel {
         panel.setBackground(GRIS_CLARO);
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
         
-        JButton btnCancelar = crearBoton("❌ Cancelar", ROJO_DANGER, e -> cancelarFormulario());
-        JButton btnGuardar = crearBoton("💾 Guardar Ticket", VERDE_PRINCIPAL, e -> guardarTicket());
+        JButton btnCancelar = crearBoton(iconManager.withIcon("CANCELAR", "Cancelar"), ROJO_DANGER, e -> cancelarFormulario());
+        JButton btnGuardar = crearBoton(iconManager.withIcon("GUARDAR", "Guardar Ticket"), VERDE_PRINCIPAL, e -> guardarTicket());
         
         panel.add(btnCancelar);
         panel.add(btnGuardar);
@@ -1073,7 +1085,7 @@ public class SistemaTicketsPanel extends JPanel {
     
     private void nuevoTicket() {
         limpiarFormulario();
-        lblTituloFormulario.setText("➕ NUEVO TICKET");
+        lblTituloFormulario.setText(iconManager.withIcon("NUEVO", "NUEVO TICKET"));
         ticketEnEdicion = null;
         cardLayout.show(panelContenedor, "FORMULARIO");
         
